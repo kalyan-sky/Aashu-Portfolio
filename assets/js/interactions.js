@@ -1,6 +1,7 @@
 /* ==========================================================================
-   interactions.js — navigation, mobile menu, scrollspy, anchor scrolling,
-   scroll progress bar. No GSAP here; cinematic motion lives in animations.js.
+   interactions.js — navigation, mobile menu, active-page nav highlighting,
+   in-page anchor scrolling, scroll progress bar. Shared across all pages.
+   No GSAP here; cinematic motion lives in animations.js.
    ========================================================================== */
 (() => {
   'use strict';
@@ -12,12 +13,13 @@
   const navbar = document.getElementById('navbar');
   const progress = document.querySelector('.scroll-progress');
   const navH = 88;
+  const hero = document.getElementById('hero');
 
   /* ---------------- Scroll progress + navbar solid state ---------------- */
   const onScroll = () => {
     const y = window.scrollY;
-    const heroH = document.getElementById('hero').offsetHeight;
-    navbar.classList.toggle('solid', y > heroH * 0.72);
+    const threshold = hero ? hero.offsetHeight * 0.72 : -1; // no hero on this page: navbar stays solid from the top
+    navbar.classList.toggle('solid', y > threshold);
 
     const max = document.documentElement.scrollHeight - window.innerHeight;
     progress.style.width = max > 0 ? `${(y / max) * 100}%` : '0%';
@@ -25,10 +27,11 @@
   document.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  /* ---------------- Smooth anchor scrolling (offset for fixed nav) ---------------- */
+  /* ---------------- Smooth in-page anchor scrolling (offset for fixed nav) ---------------- */
   document.querySelectorAll('a[href^="#"]').forEach(a => {
+    const id = a.getAttribute('href').slice(1);
+    if (!id) return;
     a.addEventListener('click', (e) => {
-      const id = a.getAttribute('href').slice(1);
       const target = document.getElementById(id);
       if (!target) return;
       e.preventDefault();
@@ -62,23 +65,10 @@
     if (e.key === 'Escape') closeMobileMenu();
   });
 
-  /* ---------------- Scrollspy: highlight active nav link ---------------- */
-  const sections = ['profile', 'experience', 'projects', 'skills', 'contact']
-    .map(id => document.getElementById(id))
-    .filter(Boolean);
-  const navAnchors = document.querySelectorAll('.nav-links a, .mobile-menu a');
-
-  if ('IntersectionObserver' in window) {
-    const spy = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.id;
-          navAnchors.forEach(a => {
-            a.classList.toggle('active', a.getAttribute('href') === `#${id}`);
-          });
-        }
-      });
-    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
-    sections.forEach(s => spy.observe(s));
-  }
+  /* ---------------- Active-page nav highlighting ---------------- */
+  const currentPage = location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.nav-links a, .mobile-menu a').forEach(a => {
+    const hrefPage = a.getAttribute('href').split('#')[0] || 'index.html';
+    if (hrefPage === currentPage) a.classList.add('active');
+  });
 })();

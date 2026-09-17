@@ -49,49 +49,59 @@
     });
   }
 
-  /* ================= HERO INTRO (plays once on load) ================= */
-  const heroTl = gsap.timeline({ defaults: { ease: 'power4.out' } });
-  heroTl
-    .fromTo('.split-inner', { yPercent: 115 }, { yPercent: 0, duration: 1.2 })
-    .fromTo('.hero-kicker', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .7 }, 0.15)
-    .fromTo('.hero-title', { opacity: 0, y: 18, filter: 'blur(5px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: .8 }, 0.55)
-    .fromTo('.hero-actions', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .7 }, 0.72)
-    .fromTo('.hero-foot', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .7 }, 0.86)
-    .fromTo('.scroll-cue', { opacity: 0 }, { opacity: 1, duration: .6 }, 1.1);
+  /* ================= HERO (Home page only) ================= */
+  const heroEl = document.getElementById('hero');
+  if (heroEl) {
+    // Intro — plays once on load.
+    const heroTl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+    heroTl
+      .fromTo('.split-inner', { yPercent: 115 }, { yPercent: 0, duration: 1.2 })
+      .fromTo('.hero-kicker', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .7 }, 0.15)
+      .fromTo('.hero-title', { opacity: 0, y: 18, filter: 'blur(5px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: .8 }, 0.55)
+      .fromTo('#hero-content .hero-actions', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .7 }, 0.72)
+      .fromTo('.hero-foot', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .7 }, 0.86)
+      .fromTo('.scroll-cue', { opacity: 0 }, { opacity: 1, duration: .6 }, 1.1);
 
-  /* ================= HERO SCROLL-OUT (scrubbed parallax) ================= */
-  gsap.to('.hero-video-wrap video', {
-    scale: 1.22,
-    y: 40,
-    ease: 'none',
-    scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 0.6 },
-  });
-  gsap.to('#hero-content', {
-    opacity: 0.08,
-    y: -70,
-    ease: 'none',
-    scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 0.6 },
-  });
-  gsap.to('#scroll-cue', {
-    opacity: 0,
-    ease: 'none',
-    scrollTrigger: { trigger: '#hero', start: 'top top', end: '30% top', scrub: 0.4 },
-  });
-
-  /* ================= STAT COUNTERS ================= */
-  document.querySelectorAll('[data-stat-target]').forEach((el) => {
-    const raw = el.dataset.statTarget;
-    const numeric = parseFloat(raw.replace(/[^\d.]/g, ''));
-    const suffix = raw.replace(/[\d.]/g, '');
-    const counter = { val: 0 };
-    gsap.to(counter, {
-      val: numeric,
-      duration: 1.6,
-      ease: 'power2.out',
-      scrollTrigger: { trigger: '.stat-strip', start: 'top 85%', toggleActions: 'play none none none' },
-      onUpdate: () => { el.textContent = Math.round(counter.val) + suffix; },
+    // Scroll-out — scrubbed parallax as the hero leaves the viewport.
+    gsap.to('.hero-video-wrap video', {
+      scale: 1.22,
+      y: 40,
+      ease: 'none',
+      scrollTrigger: { trigger: heroEl, start: 'top top', end: 'bottom top', scrub: 0.6 },
     });
-  });
+    gsap.to('#hero-content', {
+      opacity: 0.08,
+      y: -70,
+      ease: 'none',
+      scrollTrigger: { trigger: heroEl, start: 'top top', end: 'bottom top', scrub: 0.6 },
+    });
+    gsap.to('#scroll-cue', {
+      opacity: 0,
+      ease: 'none',
+      scrollTrigger: { trigger: heroEl, start: 'top top', end: '30% top', scrub: 0.4 },
+    });
+  }
+
+  /* ================= STAT COUNTERS (Home only) ================= */
+  const statStrip = document.querySelector('.stat-strip');
+  if (statStrip) {
+    document.querySelectorAll('[data-stat-target]').forEach((el) => {
+      const raw = el.dataset.statTarget;
+      const numeric = parseFloat(raw.replace(/[^\d.]/g, ''));
+      const suffix = raw.replace(/[\d.]/g, '');
+      const counter = { val: 0 };
+      gsap.to(counter, {
+        val: numeric,
+        duration: 1.6,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: statStrip, start: 'top 85%', toggleActions: 'play none none none' },
+        onUpdate: () => { el.textContent = Math.round(counter.val) + suffix; },
+      });
+    });
+  }
+
+  /* ================= PAGE HERO (About / Projects / Contact / Home CTA) ================= */
+  revealBatch('.page-hero .eyebrow, .page-hero h1, .page-hero p, .page-hero .breadcrumb, .page-hero .hero-actions', { y: 22 });
 
   /* ================= SECTION HEADS ================= */
   document.querySelectorAll('.section-head').forEach((head) => {
@@ -108,10 +118,11 @@
   /* ================= GENERIC reveal-up ELEMENTS ================= */
   // Profile, credentials, contact, skills groups, timeline entries — anything
   // simply marked .reveal-up that wasn't already handled above.
-  revealBatch('.profile-lead p, .profile-body p, .domain-pill');
-  revealBatch('.skill-group.reveal-up', { y: 22 });
+  revealBatch('.profile-lead p, .profile-body p, .domain-pill, .case-toggle.reveal-up');
+  revealBatch('.skill-group.reveal-up, .skills-teaser .skill-tag', { y: 22 });
   revealBatch('.cred-card.reveal-up', { y: 22 });
   revealBatch('.contact-panel-left .eyebrow, .contact-panel-left h2, .contact-panel-left p, .contact-panel-left .hero-actions, .contact-link');
+  revealBatch('.featured-projects .engagement-chip', { y: 24 });
 
   /* ================= TIMELINE ================= */
   const fillEl = document.getElementById('timeline-fill');

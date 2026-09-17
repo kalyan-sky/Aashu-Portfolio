@@ -1,6 +1,9 @@
 /* ==========================================================================
    render.js — builds every section's DOM from data/resumeData.js (window.RESUME).
    Presentation only: no facts are introduced here that aren't already in the data.
+   Shared across all four pages (Home / About / Projects / Contact) — every
+   function guards on its container existing, so a page only renders the
+   sections it actually contains.
    ========================================================================== */
 (() => {
   'use strict';
@@ -12,9 +15,10 @@
   const $ = (id) => document.getElementById(id);
   const isCore = (skill) => R.skills.core.some(c => c.toLowerCase() === skill.toLowerCase());
 
-  /* ---------------- HERO ---------------- */
+  /* ---------------- HERO (Home only) ---------------- */
   (function renderHero() {
     const el = $('hero-content');
+    if (!el) return;
     const nameParts = R.person.name.split(' ');
     // Italicize the final two tokens for names with 3+ parts (e.g. "Gayatri" + "Devi P"),
     // otherwise just the last word — keeps the italic fragment visually substantial.
@@ -26,8 +30,8 @@
       <h1 class="hero-name"><span class="split-line"><span class="split-inner">${first} <em>${last}</em></span></span></h1>
       <p class="hero-title reveal-up">${R.person.subtitle} — 7+ years delivering enterprise-scale applications across ${R.domains.join(', ')}.</p>
       <div class="hero-actions reveal-up">
-        <a href="#experience" class="btn btn-primary">View Experience</a>
-        <a href="#projects" class="btn btn-ghost">See Case Studies</a>
+        <a href="about.html" class="btn btn-primary">View Experience</a>
+        <a href="projects.html" class="btn btn-ghost">See Case Studies</a>
         <a href="assets/docs/Gayatri-Devi-P-Resume.pdf" class="btn btn-ghost" download>Download CV</a>
       </div>
       <div class="hero-foot reveal-up">
@@ -41,9 +45,10 @@
     `;
   })();
 
-  /* ---------------- STATS ---------------- */
+  /* ---------------- STATS (Home only) ---------------- */
   (function renderStats() {
     const el = $('stats-strip');
+    if (!el) return;
     el.innerHTML = R.stats.map(s => `
       <div class="stat">
         <div class="stat-value" data-stat-target="${s.value}">0</div>
@@ -52,9 +57,45 @@
     `).join('');
   })();
 
-  /* ---------------- PROFILE ---------------- */
+  /* ---------------- HOME TEASERS (Home only) ---------------- */
+  (function renderProfileTeaser() {
+    const el = $('profile-teaser');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="profile-lead"><p class="reveal-up">${R.summary[0]}</p></div>
+      <div class="profile-body">
+        <div class="domain-list">
+          ${R.domains.map(d => `<span class="domain-pill reveal-up">${d}</span>`).join('')}
+        </div>
+        <a href="about.html" class="case-toggle reveal-up" style="display:inline-block;margin-top:1.6rem;">Read full profile &amp; experience →</a>
+      </div>
+    `;
+  })();
+
+  (function renderFeaturedProjects() {
+    const el = $('featured-projects');
+    if (!el) return;
+    const featured = R.projects.slice(0, 2);
+    el.innerHTML = featured.map((p, i) => `
+      <a class="engagement-chip reveal-up" href="projects.html#project-${p.id}" style="display:flex;flex-direction:column;align-items:flex-start;gap:.6rem;padding:22px 24px;">
+        <span class="case-index" style="font-family:var(--font-mono);font-size:.72rem;color:var(--brass);">${String(i + 1).padStart(2, '0')}</span>
+        <span class="name" style="font-size:1.05rem;">${p.name}</span>
+        <span class="client">${p.client} · ${p.dates}</span>
+        <span class="arrow" style="opacity:1;">View case study →</span>
+      </a>
+    `).join('');
+  })();
+
+  (function renderSkillsTeaser() {
+    const el = $('skills-teaser');
+    if (!el) return;
+    el.innerHTML = R.skills.core.map(s => `<span class="skill-tag core reveal-up">${s}</span>`).join('');
+  })();
+
+  /* ---------------- PROFILE (About only) ---------------- */
   (function renderProfile() {
     const el = $('profile-content');
+    if (!el) return;
     const [lead, ...rest] = R.summary;
     el.innerHTML = `
       <div class="profile-lead"><p class="reveal-up">${lead}</p></div>
@@ -67,9 +108,10 @@
     `;
   })();
 
-  /* ---------------- EXPERIENCE TIMELINE ---------------- */
+  /* ---------------- EXPERIENCE TIMELINE (About only) ---------------- */
   (function renderTimeline() {
     const el = $('timeline');
+    if (!el) return;
     el.innerHTML = `
       <div class="timeline-track"><div class="timeline-track-fill" id="timeline-fill"></div></div>
       ${R.experience.map(job => `
@@ -83,7 +125,7 @@
               const proj = R.projects.find(p => p.id === ref);
               if (!proj) return '';
               return `
-                <a class="engagement-chip" href="#project-${proj.id}">
+                <a class="engagement-chip" href="projects.html#project-${proj.id}">
                   <span>
                     <span class="name">${proj.name}</span><br>
                     <span class="client">${proj.client} · ${proj.dates}</span>
@@ -98,9 +140,10 @@
     `;
   })();
 
-  /* ---------------- PROJECTS / CASE STUDIES ---------------- */
+  /* ---------------- PROJECTS / CASE STUDIES (Projects only) ---------------- */
   (function renderCaseStudies() {
     const el = $('case-studies');
+    if (!el) return;
     el.innerHTML = R.projects.map((p, i) => {
       const num = String(i + 1).padStart(2, '0');
       const flip = i % 2 === 1 ? 'flip' : '';
@@ -190,10 +233,12 @@
     `;
   }
 
-  /* ---------------- SKILLS ---------------- */
+  /* ---------------- SKILLS (About only) ---------------- */
   (function renderSkills() {
-    $('skills-intro').textContent = R.skills.intro;
     const el = $('skills-grid');
+    if (!el) return;
+    const intro = $('skills-intro');
+    if (intro) intro.textContent = R.skills.intro;
     el.innerHTML = R.skills.groups.map(g => `
       <div class="skill-group reveal-up">
         <h3>${g.title}</h3>
@@ -204,9 +249,10 @@
     `).join('');
   })();
 
-  /* ---------------- CREDENTIALS ---------------- */
+  /* ---------------- CREDENTIALS (About only) ---------------- */
   (function renderCredentials() {
     const el = $('credentials-grid');
+    if (!el) return;
     el.innerHTML = `
       <div class="cred-card reveal-up">
         <h3 class="mono-label" style="display:block;margin-bottom:1.4rem;">Education</h3>
@@ -240,9 +286,10 @@
     `;
   })();
 
-  /* ---------------- CONTACT ---------------- */
+  /* ---------------- CONTACT (Contact only) ---------------- */
   (function renderContact() {
     const el = $('contact-panel');
+    if (!el) return;
     el.innerHTML = `
       <div class="contact-panel-left">
         <span class="eyebrow reveal-up">Contact</span>
@@ -270,9 +317,11 @@
     `;
   })();
 
-  /* ---------------- FOOTER ---------------- */
+  /* ---------------- FOOTER (every page) ---------------- */
   (function renderFooter() {
-    $('footer-name').textContent = `© ${new Date().getFullYear()} ${R.person.name}`;
+    const nameEl = $('footer-name');
+    if (!nameEl) return;
+    nameEl.textContent = `© ${new Date().getFullYear()} ${R.person.name}`;
     $('footer-links').innerHTML = `
       <a href="mailto:${R.person.email}">${R.person.email}</a> ·
       <a href="${R.person.linkedinHref}" target="_blank" rel="noopener">LinkedIn</a>

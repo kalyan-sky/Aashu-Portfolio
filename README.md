@@ -1,9 +1,20 @@
 # Gayatri Devi P — Cinematic Portfolio
 
-A single-page, premium/cinematic portfolio for **Gayatri Devi P**, Senior .NET Full Stack
+A premium/cinematic, multi-page portfolio for **Gayatri Devi P**, Senior .NET Full Stack
 Developer (ASP.NET Core · Angular · AWS · Microservices), based in Singapore. Every fact
-on the page — name, dates, employers, clients, skills, certifications, education, contact
+on the site — name, dates, employers, clients, skills, certifications, education, contact
 details — is transcribed directly from her resume. Nothing is invented.
+
+## Pages
+
+- `index.html` — Home. Full-screen video hero, animated stats, a profile teaser, two
+  featured project engagements, and a core-stack skills teaser.
+- `about.html` — Full professional summary, the organizational experience timeline
+  (Cognizant, Speridian, LTI), the complete skills grid, and education & certifications.
+- `projects.html` — All four client engagements as in-depth case studies (Common Payment
+  System, Charity Portal e-Services, CIAM, Insurance Underwriting vNext), including a
+  small architecture diagram for CPS built from its own bullet points.
+- `contact.html` — Email, phone and LinkedIn only — no invented links.
 
 ## Architecture
 
@@ -11,28 +22,26 @@ Static HTML/CSS/JS — no build step, no framework, no bundler.
 
 ```
 data/resumeData.js        — single source of truth. Every resume fact lives here, once.
-assets/js/render.js        — builds the DOM for every section from data/resumeData.js.
-assets/js/interactions.js  — nav solid/transparent state, mobile menu, scrollspy, anchor scroll.
-assets/js/animations.js    — GSAP/ScrollTrigger cinematic scroll motion (fully optional layer).
-assets/css/style.css       — the visual system.
-assets/video/hero.mp4      — the supplied hero background video, used as-is.
-assets/docs/*.pdf          — the source resume, linked from the "Download CV" button.
-index.html                 — page skeleton: nav, hero video, empty section containers.
+assets/js/render.js        — builds each page's sections from data/resumeData.js.
+                              Every render function guards on its container existing, so
+                              the same script runs unmodified on all four pages — each
+                              page only renders the containers it actually has.
+assets/js/interactions.js  — nav solid state, mobile menu, active-page highlighting,
+                              in-page anchor scroll. Shared across all four pages.
+assets/js/animations.js    — GSAP/ScrollTrigger cinematic scroll motion (fully optional
+                              layer — page-specific effects like the hero intro/parallax
+                              and stat counters no-op on pages without those elements).
+assets/css/style.css       — the visual system, shared by all four pages.
+assets/video/hero.mp4      — the supplied hero background video, used as-is (Home only).
+assets/docs/*.pdf          — the source resume, linked from every "Download CV" button.
+index.html / about.html /
+projects.html / contact.html — page skeletons: nav, hero (Home only), empty section
+                              containers filled by render.js.
 ```
 
 Content and presentation are deliberately separated: to change a job title, a bullet
-point, a certification, or a phone number, edit `data/resumeData.js` — nothing else needs
-to change. `render.js` re-renders every section from that one object on page load.
-
-## Sections (all resume-derived)
-
-Hero → Stats strip (7+ yrs / 3 orgs / 4 engagements / 30% latency reduced / 3 certs,
-all directly counted or quoted from the resume) → Profile (professional summary) →
-Experience (organizational timeline: CTS, Speridian, LTI) → Projects (case studies for
-the four client engagements — CPS, Charity Portal e-Services, CIAM, Insurance
-Underwriting vNext — including a small architecture diagram for CPS built from its own
-bullet points) → Skills (grouped exactly as the resume's Core Competencies section) →
-Education & Certifications → Contact (email, phone, LinkedIn only — no invented links).
+point, a certification, or a phone number, edit `data/resumeData.js` once — nothing else
+needs to change, and the edit is picked up on every page that shows that data.
 
 ## Design system
 
@@ -40,23 +49,26 @@ Education & Certifications → Contact (email, phone, LinkedIn only — no inven
   cool steel-blue secondary accent.
 - Type: **Fraunces** (serif display) + **Inter** (body) + **IBM Plex Mono** (labels, dates,
   stats, tags), loaded from Google Fonts.
-- Editorial hero (video background, bottom-aligned headline), thin-line dividers, restrained
-  glass/blur only on the navbar, no neon, no particle effects.
+- Editorial hero (video background, bottom-aligned headline) on Home; a shorter
+  text-driven "page hero" banner introduces About/Projects/Contact. Thin-line dividers,
+  restrained glass/blur only on the navbar, no neon, no particle effects.
 
 ## Cinematic motion (GSAP + ScrollTrigger, loaded from cdnjs)
 
-- Hero: staggered load-in (masked name reveal, fade/blur-up kicker, subtitle, CTAs), then a
-  scrubbed scroll-out — video scales/parallaxes, content fades, scroll cue disappears.
-- Section headings and every content block: fade-up + blur-to-sharp on scroll-in.
-- Experience: a vertical line draws progressively as you scroll the timeline; entries
-  slide/fade in; engagement chips stagger in under each employer.
-- Projects: alternating left/right case-study layout with slide-in text, a scale/parallax
+- Home hero: staggered load-in (masked name reveal, fade/blur-up kicker, subtitle, CTAs),
+  then a scrubbed scroll-out — video scales/parallaxes, content fades, scroll cue disappears.
+- Every page hero and section heading: fade-up + blur-to-sharp on scroll-in.
+- About's experience timeline: a vertical line draws progressively as you scroll; entries
+  slide/fade in; engagement chips (linking to their Projects case study) stagger in under
+  each employer.
+- Projects' case studies: alternating left/right layout with slide-in text, a scale/parallax
   visual panel, and (for the CPS engagement) an architecture diagram whose connecting
   lines draw in on scroll.
 - All motion is driven by CSS transforms/opacity/filter (GPU-friendly), and **fully
   disabled** under `prefers-reduced-motion: reduce` — content simply appears in its final
   state, no parallax, no scrub. If the GSAP CDN fails to load for any reason, the same
-  fallback kicks in automatically so the page is never left blank or half-animated.
+  fallback kicks in automatically on every page so nothing is ever left blank or
+  half-animated.
 
 ## Local preview
 
@@ -70,4 +82,4 @@ python3 -m http.server 8000
 All content is transcribed from Gayatri Devi P's resume (experience at Cognizant
 Technology Solutions, Speridian Technologies, and Larsen & Toubro Infotech). The original
 PDF is included at `assets/docs/Gayatri-Devi-P-Resume.pdf` and linked from the "Download
-CV" button.
+CV" button on every page.
