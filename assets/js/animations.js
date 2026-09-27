@@ -12,7 +12,7 @@
 
   // Fallback: no GSAP or reduced motion requested — just show everything, no motion.
   if (reduceMotion || !gsapReady) {
-    document.querySelectorAll('.reveal-up, .split-inner, .stat-value').forEach(el => {
+    document.querySelectorAll('.reveal-up, .split-inner, .stat-value, .word').forEach(el => {
       el.style.opacity = '1';
       el.style.transform = 'none';
       el.style.filter = 'none';
@@ -28,6 +28,19 @@
 
   gsap.registerPlugin(ScrollTrigger);
   gsap.defaults({ ease: 'power3.out' });
+  const isTouch = matchMedia('(hover: none), (pointer: coarse)').matches;
+
+  /* ================= LENIS SMOOTH SCROLL ================= */
+  // Buttery inertia scrolling, synced to GSAP's own ticker so ScrollTrigger
+  // stays perfectly in step. Purely a feel upgrade — native scroll still
+  // works identically if the CDN doesn't load.
+  if (typeof Lenis !== 'undefined') {
+    const lenis = new Lenis({ duration: 1.05, wheelMultiplier: 1, touchMultiplier: 1.1 });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+    window.__lenis = lenis;
+  }
 
   /* ---------------- Helper: fade-up + blur-to-sharp reveal ---------------- */
   function revealBatch(selector, opts = {}) {
@@ -118,7 +131,7 @@
   /* ================= GENERIC reveal-up ELEMENTS ================= */
   // Profile, credentials, contact, skills groups, timeline entries — anything
   // simply marked .reveal-up that wasn't already handled above.
-  revealBatch('.profile-lead p, .profile-body p, .domain-pill, .case-toggle.reveal-up');
+  revealBatch('.profile-body p, .domain-pill, .case-toggle.reveal-up');
   revealBatch('.skill-group.reveal-up, .skills-teaser .skill-tag', { y: 22 });
   revealBatch('.cred-card.reveal-up', { y: 22 });
   revealBatch('.contact-panel-left .eyebrow, .contact-panel-left h2, .contact-panel-left p, .contact-panel-left .hero-actions, .contact-link');
@@ -185,6 +198,62 @@
       });
     }
   });
+
+  /* ================= WORD ILLUMINATION (profile lead line only) ================= */
+  // Used sparingly, on exactly one line per page (the pull-quote-style intro
+  // sentence): words brighten one by one as the paragraph crosses the middle
+  // of the viewport. Real text throughout — no layout shift, nothing hidden
+  // from screen readers or crawlers, just a dim-to-bright opacity tween.
+  document.querySelectorAll('.profile-lead p').forEach((p) => {
+    const words = p.querySelectorAll('.word');
+    if (!words.length) return;
+    gsap.to(words, {
+      opacity: 1,
+      stagger: 0.08,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: p,
+        start: 'top 78%',
+        end: 'bottom 45%',
+        scrub: 0.4,
+      },
+    });
+  });
+
+  /* ================= CURSOR COMPANION + MAGNETIC BUTTONS (desktop only) ================= */
+  if (!isTouch) {
+    const ring = document.createElement('div');
+    ring.className = 'cursor-ring';
+    document.body.appendChild(ring);
+
+    let rx = 0, ry = 0, mx = 0, my = 0;
+    window.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
+    gsap.ticker.add(() => {
+      rx += (mx - rx) * 0.18;
+      ry += (my - ry) * 0.18;
+      ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+    });
+
+    document.querySelectorAll('a, button, input, textarea').forEach((el) => {
+      el.addEventListener('mouseenter', () => ring.classList.add('active'));
+      el.addEventListener('mouseleave', () => ring.classList.remove('active'));
+    });
+
+    // Magnetic pull: buttons lean toward the cursor within a small radius,
+    // then spring back. A "felt, not seen" detail — restrained on purpose.
+    document.querySelectorAll('.btn').forEach((btn) => {
+      const move = gsap.quickTo(btn, 'x', { duration: 0.4, ease: 'power3.out' });
+      const moveY = gsap.quickTo(btn, 'y', { duration: 0.4, ease: 'power3.out' });
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const relX = e.clientX - (rect.left + rect.width / 2);
+        const relY = e.clientY - (rect.top + rect.height / 2);
+        move(relX * 0.25);
+        moveY(relY * 0.35);
+      });
+      btn.addEventListener('mouseleave', () => { move(0); moveY(0); });
+    });
+  }
 
   /* Refresh ScrollTrigger once webfonts / late layout settle */
   window.addEventListener('load', () => ScrollTrigger.refresh());

@@ -5,6 +5,25 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
+/* Native cross-document view transitions: a soft cross-fade between pages in
+   browsers that support it (Chrome/Edge); a plain, instant navigation
+   everywhere else. Zero JS, zero risk. */
+@view-transition{
+  navigation: auto;
+}
+::view-transition-old(root),
+::view-transition-new(root){
+  animation-duration: .5s;
+  animation-timing-function: cubic-bezier(.4,0,.2,1);
+}
+@media (prefers-reduced-motion: reduce){
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*){
+    animation: none !important;
+  }
+}
+
 :root{
   --bg: #05060a;
   --bg-raised: #0b0d14;
@@ -115,6 +134,32 @@ section{ position: relative; padding: clamp(90px, 12vw, 160px) 0; scroll-margin-
 .reveal-up{ opacity:0; }
 .no-js .reveal-up,
 .reduced-motion .reveal-up{ opacity:1 !important; transform:none !important; filter:none !important; }
+
+/* Scroll-linked word illumination (profile lead line only — used sparingly) */
+.word{ opacity: .32; transition: opacity .3s ease; }
+.no-js .word,
+.reduced-motion .word{ opacity: 1 !important; }
+
+/* ---------------- Cursor companion (desktop only, added by animations.js) ---------------- */
+.cursor-ring{
+  position: fixed; top:0; left:0;
+  width: 34px; height:34px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  pointer-events: none;
+  z-index: 999;
+  transform: translate(-50%,-50%);
+  transition: width .25s var(--ease-out), height .25s var(--ease-out), border-color .25s ease, background .25s ease;
+  will-change: transform;
+}
+.cursor-ring.active{
+  width: 54px; height:54px;
+  border-color: var(--brass);
+  background: var(--brass-soft);
+}
+@media (hover:none), (pointer:coarse){
+  .cursor-ring{ display:none; }
+}
 
 /* ---------------- Noise + grain ---------------- */
 .grain{

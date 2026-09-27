@@ -37,7 +37,11 @@
       e.preventDefault();
       closeMobileMenu();
       const top = target.getBoundingClientRect().top + window.scrollY - (id === 'top' ? 0 : navH - 8);
-      window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
+      if (window.__lenis && !reduceMotion) {
+        window.__lenis.scrollTo(top, { duration: 1.1 });
+      } else {
+        window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
+      }
       history.pushState(null, '', `#${id}`);
     });
   });

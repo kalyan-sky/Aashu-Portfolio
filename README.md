@@ -53,10 +53,26 @@ needs to change, and the edit is picked up on every page that shows that data.
   text-driven "page hero" banner introduces About/Projects/Contact. Thin-line dividers,
   restrained glass/blur only on the navbar, no neon, no particle effects.
 
-## Cinematic motion (GSAP + ScrollTrigger, loaded from cdnjs)
+## Cinematic motion (GSAP + ScrollTrigger + Lenis, loaded from CDN)
 
-- Home hero: staggered load-in (masked name reveal, fade/blur-up kicker, subtitle, CTAs),
-  then a scrubbed scroll-out — video scales/parallaxes, content fades, scroll cue disappears.
+Built around current (2026) motion-UI practice — see the research notes below for sources
+— favoring a small set of purposeful, restrained effects over decorative maximalism:
+
+- **Lenis smooth scroll**, synced to GSAP's ticker so every scroll-trigger stays in step.
+  This is the single biggest "feel" upgrade: inertia scrolling instead of native scroll-jump.
+- **Native cross-document View Transitions** (`@view-transition { navigation: auto; }` in
+  `style.css`) — a soft cross-fade between Home/About/Projects/Contact in browsers that
+  support it (Chrome/Edge), zero JavaScript, and a plain instant navigation everywhere else.
+- Home hero: staggered load-in (masked name reveal, fade/blur-up kicker, subtitle, 2 focused
+  CTAs — trimmed from 3 to avoid an overloaded hero), then a scrubbed scroll-out — video
+  scales/parallaxes, content fades, scroll cue disappears.
+- **Scroll-linked word illumination** on the profile lead line only (Home + About) — words
+  brighten one by one as the sentence crosses the viewport, Linear/Apple-style. Applied to
+  exactly one line per page, deliberately: real text throughout (no layout shift, nothing
+  hidden from screen readers or crawlers), just an opacity tween from dim to bright.
+- **Magnetic buttons + a soft cursor ring** (desktop only) — buttons lean toward the pointer
+  within a small radius and spring back; the ring scales up over links/buttons. Restrained
+  on purpose — "felt, not seen."
 - Every page hero and section heading: fade-up + blur-to-sharp on scroll-in.
 - About's experience timeline: a vertical line draws progressively as you scroll; entries
   slide/fade in; engagement chips (linking to their Projects case study) stagger in under
@@ -66,9 +82,22 @@ needs to change, and the edit is picked up on every page that shows that data.
   lines draw in on scroll.
 - All motion is driven by CSS transforms/opacity/filter (GPU-friendly), and **fully
   disabled** under `prefers-reduced-motion: reduce` — content simply appears in its final
-  state, no parallax, no scrub. If the GSAP CDN fails to load for any reason, the same
-  fallback kicks in automatically on every page so nothing is ever left blank or
-  half-animated.
+  state, no parallax, no scrub, no cursor ring, no magnetic pull, words at full opacity.
+  If the GSAP/Lenis CDNs fail to load for any reason, the same fallback kicks in
+  automatically on every page so nothing is ever left blank, dim, or half-animated.
+
+### Research notes
+
+Chosen deliberately from what's actually holding up in 2026 motion-UI writeups, not
+whatever looked flashiest: restraint over kinetic maximalism (Awwwards juror interviews
+note that "a simple fade and translate often communicates more than a complex staggered
+timeline"), cursor/magnetic micro-interactions as a cheap way to feel premium, Lenis as
+the current standard smooth-scroll layer, native View Transitions as the zero-cost way to
+soften multi-page navigation, and text-illumination effects used on a single sentence
+rather than as blanket "kinetic typography" (which multiple 2026 sources flag as an
+Awwwards-demo effect that rarely ships in production because it fights screen readers,
+crawlers and Core Web Vitals when overused). Overloaded hero sections, heavy 3D, and
+glassmorphism-on-everything were treated as the explicit anti-patterns to avoid.
 
 ## Local preview
 

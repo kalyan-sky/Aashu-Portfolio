@@ -14,6 +14,10 @@
 
   const $ = (id) => document.getElementById(id);
   const isCore = (skill) => R.skills.core.some(c => c.toLowerCase() === skill.toLowerCase());
+  // Wraps each word in its own span so animations.js can light words up one by
+  // one as the paragraph scrolls into view. Plain spaces stay outside the
+  // spans, so selection, copy and screen readers all see normal flowing text.
+  const wrapWords = (text) => text.split(' ').map(w => `<span class="word">${w}</span>`).join(' ');
 
   /* ---------------- HERO (Home only) ---------------- */
   (function renderHero() {
@@ -32,7 +36,6 @@
       <div class="hero-actions reveal-up">
         <a href="about.html" class="btn btn-primary">View Experience</a>
         <a href="projects.html" class="btn btn-ghost">See Case Studies</a>
-        <a href="assets/docs/Gayatri-Devi-P-Resume.pdf" class="btn btn-ghost" download>Download CV</a>
       </div>
       <div class="hero-foot reveal-up">
         <span class="mono-label" style="color:var(--ink-faint);">Based in ${R.person.location}</span>
@@ -62,7 +65,7 @@
     const el = $('profile-teaser');
     if (!el) return;
     el.innerHTML = `
-      <div class="profile-lead"><p class="reveal-up">${R.summary[0]}</p></div>
+      <div class="profile-lead"><p>${wrapWords(R.summary[0])}</p></div>
       <div class="profile-body">
         <div class="domain-list">
           ${R.domains.map(d => `<span class="domain-pill reveal-up">${d}</span>`).join('')}
@@ -98,7 +101,7 @@
     if (!el) return;
     const [lead, ...rest] = R.summary;
     el.innerHTML = `
-      <div class="profile-lead"><p class="reveal-up">${lead}</p></div>
+      <div class="profile-lead"><p>${wrapWords(lead)}</p></div>
       <div class="profile-body">
         ${rest.map(p => `<p class="reveal-up">${p}</p>`).join('')}
         <div class="domain-list">
