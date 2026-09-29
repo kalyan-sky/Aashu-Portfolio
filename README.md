@@ -129,6 +129,24 @@ python3 -m http.server 8000
 # then open http://localhost:8000
 ```
 
+## Deploying to Cloud Run
+
+`Dockerfile` builds a minimal `nginx:alpine` image that serves these static files —
+no build step, no app server. `nginx.conf` listens on 8080 (Cloud Run's default
+`$PORT`; update it if you deploy with a custom `--port`).
+
+```bash
+gcloud run deploy aashu-portfolio --source . --region <your-region>
+```
+
+or, if you already have a Cloud Build trigger pointed at this repo, it will now find
+the `Dockerfile` at the repo root and build successfully.
+
+Note: `COPY` in the Dockerfile preserves source file permissions, and nginx's worker
+process runs as a non-root user — the Dockerfile runs `chmod -R a+rX` after copying to
+guard against any file (e.g. a binary asset checked out with a restrictive mode) being
+unreadable to it; this was hit and fixed while verifying the image locally.
+
 ## Content source
 
 All content is transcribed from Gayatri Devi P's resume (experience at Cognizant
