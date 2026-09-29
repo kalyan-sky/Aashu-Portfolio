@@ -1,4 +1,4 @@
-# Gayatri Devi P — Cinematic Portfolio
+# Gayatri Devi P — Ultrafuturistic Portfolio
 
 A premium/cinematic, multi-page portfolio for **Gayatri Devi P**, Senior .NET Full Stack
 Developer (ASP.NET Core · Angular · AWS · Microservices), based in Singapore. Every fact
@@ -45,13 +45,36 @@ needs to change, and the edit is picked up on every page that shows that data.
 
 ## Design system
 
-- Dark, single-theme cinematic palette: near-black ground, a muted brass/gold accent, a
-  cool steel-blue secondary accent.
-- Type: **Fraunces** (serif display) + **Inter** (body) + **IBM Plex Mono** (labels, dates,
-  stats, tags), loaded from Google Fonts.
-- Editorial hero (video background, bottom-aligned headline) on Home; a shorter
-  text-driven "page hero" banner introduces About/Projects/Contact. Thin-line dividers,
-  restrained glass/blur only on the navbar, no neon, no particle effects.
+Sci-fi/HUD visual language with a full light + dark theme, built to feel dynamic without
+tipping into the excessive-neon/heavy-3D anti-patterns 2026 write-ups flag (see the
+research notes in the previous motion section).
+
+- **Dual theme, no flash-of-wrong-theme.** Light is the CSS default; dark redefines the
+  same tokens under `prefers-color-scheme` (so it follows the OS by default) and again
+  under `[data-theme="dark"]` so an explicit toggle wins either way. A tiny inline script
+  in each page's `<head>` applies a saved `localStorage` choice before first paint. Click
+  the sun/moon button in the nav to toggle — the choice persists across pages and visits.
+- **Electric cyan (`--accent`) + violet (`--accent-2`)** replace the previous brass/steel
+  palette — vivid and glowing in dark, deliberately calmer (darker cyan, same violet) in
+  light so nothing looks washed out on a white ground.
+- Type: **Space Grotesk** (display, geometric/technical) + **Inter** (body) + **IBM Plex
+  Mono** (labels, dates, stats, tags), loaded from Google Fonts.
+- **HUD corner brackets** (`.hud`) on key panels — the architecture diagram, credential
+  cards, the contact panel, CTA banners — a two-corner cyan/violet accent that's a classic
+  sci-fi interface cue without wrapping every element in it.
+- **Animated aurora mesh background** — three large blurred cyan/violet blobs drifting
+  slowly behind the content (`prefers-reduced-motion` freezes them) — plus a faint
+  technical grid backdrop that fades toward the page edges.
+- **A scanline sweep** across the Home hero video, and a slow-drifting gradient on the
+  hero name and `.gradient-text` headline treatment.
+- The hero itself (video + dark scrim) is intentionally theme-**independent** — it always
+  renders as a dark cinematic panel, with a fixed dark fallback color if the video never
+  loads, and the transparent navbar overlaying it temporarily borrows the hero's fixed
+  light text colors (scoped CSS-variable override) so nav/logo/buttons stay legible over
+  the video regardless of which site theme is active. Once scrolled past (or on pages with
+  no hero, where the nav is solid from the top) everything reverts to normal theme colors.
+- Buttons use a clipped bottom-right corner (`clip-path`) instead of rounded corners — a
+  small, consistent "technical" shape detail rather than a generic pill button.
 
 ## Cinematic motion (GSAP + ScrollTrigger + Lenis, loaded from CDN)
 

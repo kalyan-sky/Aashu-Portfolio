@@ -75,4 +75,16 @@
     const hrefPage = a.getAttribute('href').split('#')[0] || 'index.html';
     if (hrefPage === currentPage) a.classList.add('active');
   });
+
+  /* ---------------- Theme toggle (light / dark, persisted) ---------------- */
+  const themeBtn = document.getElementById('theme-toggle');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      const systemDark = matchMedia('(prefers-color-scheme: dark)').matches;
+      const current = document.documentElement.dataset.theme || (systemDark ? 'dark' : 'light');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem('theme', next); } catch (e) {}
+    });
+  }
 })();

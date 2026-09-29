@@ -81,7 +81,7 @@
     const featured = R.projects.slice(0, 2);
     el.innerHTML = featured.map((p, i) => `
       <a class="engagement-chip reveal-up" href="projects.html#project-${p.id}" style="display:flex;flex-direction:column;align-items:flex-start;gap:.6rem;padding:22px 24px;">
-        <span class="case-index" style="font-family:var(--font-mono);font-size:.72rem;color:var(--brass);">${String(i + 1).padStart(2, '0')}</span>
+        <span class="case-index" style="font-family:var(--font-mono);font-size:.72rem;color:var(--accent);">${String(i + 1).padStart(2, '0')}</span>
         <span class="name" style="font-size:1.05rem;">${p.name}</span>
         <span class="client">${p.client} · ${p.dates}</span>
         <span class="arrow" style="opacity:1;">View case study →</span>
@@ -198,7 +198,7 @@
 
   function buildDiagram(a) {
     return `
-      <div class="diagram">
+      <div class="diagram hud">
         <div class="diagram-caption">${a.caption}</div>
         <div class="diagram-row">
           ${a.channels.map(c => `<div class="diagram-node">${c}</div>`).join('')}
@@ -224,7 +224,7 @@
 
   function buildQuoteVisual(p) {
     return `
-      <div class="diagram">
+      <div class="diagram hud">
         <div class="diagram-caption">Key skills applied</div>
         <div class="diagram-row" style="justify-content:flex-start;">
           ${p.keySkills.map(s => `<div class="diagram-node">${s}</div>`).join('')}
@@ -257,7 +257,7 @@
     const el = $('credentials-grid');
     if (!el) return;
     el.innerHTML = `
-      <div class="cred-card reveal-up">
+      <div class="cred-card hud reveal-up">
         <h3 class="mono-label" style="display:block;margin-bottom:1.4rem;">Education</h3>
         <div class="cred-list">
           ${R.education.map(e => `
@@ -272,7 +272,7 @@
           `).join('')}
         </div>
       </div>
-      <div class="cred-card reveal-up">
+      <div class="cred-card hud reveal-up">
         <h3 class="mono-label" style="display:block;margin-bottom:1.4rem;">Certifications</h3>
         <div class="cred-list">
           ${R.certifications.map(c => `
