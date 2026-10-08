@@ -41,20 +41,6 @@
   gsap.defaults({ ease: 'power3.out' });
   const isTouch = matchMedia('(hover: none), (pointer: coarse)').matches;
 
-  // Every ScrollTrigger below gets its start/end pixel positions from the
-  // page's layout *at the moment it's created* — typically before the
-  // Google Fonts @import has finished swapping in Space Grotesk/IBM Plex
-  // Mono. That web-font swap changes text metrics (line-height, wrapping),
-  // which shifts the height of everything below it, which leaves every
-  // already-measured trigger (the pinned System Trace sequence most of
-  // all) pointing at the wrong scroll positions — scrolling can then show
-  // the wrong beat, or content that looks like it's repeating/jumping.
-  // Re-measuring once fonts are actually ready fixes the whole page at once.
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => ScrollTrigger.refresh());
-  }
-  window.addEventListener('load', () => ScrollTrigger.refresh());
-
   /* ================= LENIS SMOOTH SCROLL ================= */
   // Buttery inertia scrolling, synced to GSAP's own ticker so ScrollTrigger
   // stays perfectly in step. Purely a feel upgrade — native scroll still
@@ -116,14 +102,6 @@
         end: '+=' + (panels.length * 70) + '%',
         scrub: 0.6,
         pin: pin,
-        // Default 'fixed' pinning breaks (pinned content stops tracking
-        // scroll, so beats appear to repeat/stack as you scroll past them)
-        // whenever the pin lives inside a container some host page has
-        // applied a CSS transform to — e.g. an embedded preview's own
-        // scale-to-fit wrapper. 'transform' pinning doesn't rely on
-        // position:fixed, so it keeps working in that case and is a no-op
-        // cost everywhere else.
-        pinType: 'transform',
         anticipatePin: 1,
         onUpdate(self) {
           const idx = Math.min(tags.length - 1, Math.floor(self.progress * tags.length));
