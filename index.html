@@ -17,6 +17,7 @@
 </head>
 <body class="no-js">
 
+  <div class="page-transition" id="page-transition" aria-hidden="true"><span class="pt-mark">GD</span></div>
   <div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
   <div class="grid-backdrop" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
@@ -77,6 +78,11 @@
       <div class="scroll-cue" id="scroll-cue"><span>Scroll</span><span class="line"></span></div>
     </section>
 
+    <!-- ============ MARQUEE ============ -->
+    <div class="marquee-section">
+      <div class="marquee-track" id="marquee-track"></div>
+    </div>
+
     <!-- ============ STATS ============ -->
     <section class="stat-strip" style="padding:0;">
       <div class="container" id="stats-strip"></div>
@@ -93,16 +99,19 @@
       </div>
     </section>
 
-    <!-- ============ FEATURED PROJECTS ============ -->
-    <section style="background:var(--bg-raised);">
+    <!-- ============ FEATURED PROJECTS (pinned horizontal scroll on desktop) ============ -->
+    <section class="h-pin-wrap" id="h-pin-wrap" style="background:var(--bg-raised);">
       <div class="container">
         <div class="section-head">
           <span class="eyebrow">Selected Work</span>
-          <h2>Recent engagements</h2>
-          <p>Two of four client engagements — government payment infrastructure and
-          civic e-services. <a href="projects.html" style="color:var(--accent-bright);">See all projects →</a></p>
+          <h2>Four engagements</h2>
+          <p>Every client engagement on the resume, scroll-driven. Full write-ups on the
+          <a href="projects.html" style="color:var(--accent-bright);">Projects page →</a></p>
         </div>
-        <div class="featured-projects" id="featured-projects"></div>
+        <div class="h-scroll">
+          <div class="h-track" id="featured-projects"></div>
+        </div>
+        <div class="h-progress"><div class="h-progress-fill"></div></div>
       </div>
     </section>
 

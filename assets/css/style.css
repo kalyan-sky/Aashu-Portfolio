@@ -720,10 +720,115 @@ main{ position: relative; z-index: 1; }
 @media (max-width: 900px){ .profile-grid{ grid-template-columns: 1fr; } }
 
 /* ================= HOME TEASERS ================= */
-.featured-projects{ display:grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
-.featured-projects .engagement-chip{ padding: 24px 26px; }
 .skills-teaser{ display:flex; flex-wrap:wrap; gap: .7rem; }
-@media (max-width: 760px){ .featured-projects{ grid-template-columns: 1fr; } }
+
+/* ================= MARQUEE (Home only, GSAP-driven) ================= */
+.marquee-section{
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-raised);
+  overflow: hidden;
+  padding: clamp(20px, 3vw, 30px) 0;
+}
+.marquee-track{
+  display: flex;
+  width: max-content;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  will-change: transform;
+}
+.marquee-track span{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  color: var(--ink-faint);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: clamp(2rem, 4vw, 3.5rem);
+}
+.marquee-track span::after{
+  content: '◆';
+  font-size: .5em;
+  color: var(--accent);
+  margin-left: clamp(2rem, 4vw, 3.5rem);
+}
+
+/* ================= HORIZONTAL PINNED SHOWCASE (Home: all 4 engagements) ================= */
+.h-pin-wrap{ position: relative; }
+.h-scroll{
+  margin-top: clamp(36px, 5vw, 56px);
+  /* Safe default: a plain scrollable row, reachable with no JS, reduced
+     motion, or a failed GSAP load. JS upgrades this to a pinned/scrubbed
+     scroll-jack on wide, hover-capable (desktop) viewports only, and adds
+     .pin-active at that point — never the other way around. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+.h-scroll.pin-active{ overflow: hidden; }
+.h-track{
+  display: flex;
+  gap: clamp(1.2rem, 2.5vw, 1.8rem);
+  width: max-content;
+  padding-bottom: 4px;
+}
+.h-card{
+  scroll-snap-align: start;
+  width: min(80vw, 420px);
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  background: var(--bg-raised);
+  padding: clamp(26px, 3vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+  transition: border-color .3s ease, transform .3s var(--ease-out);
+}
+.h-card:hover{ border-color: var(--accent); }
+.h-card .case-index{ font-family: var(--font-mono); font-size: .74rem; color: var(--accent); letter-spacing: .1em; }
+.h-card h3{ font-size: clamp(1.25rem, 2vw, 1.55rem); }
+.h-card .client{ font-family: var(--font-mono); font-size: .76rem; color: var(--ink-faint); }
+.h-card p{ font-size: .92rem; }
+.h-card .h-tags{ display: flex; flex-wrap: wrap; gap: .4rem; margin-top: auto; padding-top: .4rem; }
+.h-card .h-tags span{ font-family: var(--font-mono); font-size: .66rem; padding: 5px 10px; border: 1px solid var(--line); color: var(--ink-dim); }
+.h-card .arrow{ font-family: var(--font-mono); font-size: .78rem; color: var(--accent-bright); }
+.h-progress{
+  display: none; /* JS reveals this only once it actually activates the pinned scroll-jack */
+  margin-top: 1.2rem;
+  height: 2px;
+  background: var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.h-progress.active{ display: block; }
+.h-progress-fill{
+  position: absolute; left:0; top:0; bottom:0;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+/* ================= PAGE TRANSITION (click-triggered exit wipe, GSAP only) ================= */
+/* Parked fully off-screen by default — a pure-CSS/no-JS visitor never sees
+   this element do anything. JS only ever brings it into view in direct
+   response to a click, right before navigating away; it never gates the
+   page's own content. */
+.page-transition{
+  position: fixed; inset: 0; z-index: 2000;
+  pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg);
+  transform: translateY(100%);
+}
+.page-transition .pt-mark{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: .04em;
+  color: var(--accent);
+  opacity: 0;
+}
 
 /* ================= EXPERIENCE TIMELINE ================= */
 .timeline{ position: relative; }

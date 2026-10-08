@@ -96,6 +96,24 @@ Built around current (2026) motion-UI practice — see the research notes below 
 - **Magnetic buttons + a soft cursor ring** (desktop only) — buttons lean toward the pointer
   within a small radius and spring back; the ring scales up over links/buttons. Restrained
   on purpose — "felt, not seen."
+- **A GSAP-driven marquee** (Home only) — every deduplicated skill from the resume's Core
+  Competencies, looping edge-to-edge, slowing to a crawl on hover. Distinct in content from
+  the "Core stack" teaser lower on the page (that one's just the 5 most-repeated skills).
+- **A pinned horizontal-scroll showcase** (Home's "Four engagements") — the classic
+  motion-site device: the section pins and all four client engagements translate
+  horizontally as you scroll vertically, `ScrollTrigger.matchMedia`-gated to desktop +
+  hover-capable viewports only. Touch devices (even wide tablets) get a plain native
+  swipeable row instead — `.h-scroll` is `overflow-x: auto` by *default*, and JS only
+  upgrades it to the pinned/scrubbed experience once that media query actually matches;
+  with no GSAP or on a narrow/touch viewport, all four cards stay reachable by scrolling,
+  never clipped or hidden.
+- **A click-triggered page-transition wipe** between Home/About/Projects/Contact — a
+  branded panel slides up to cover the screen right before navigating, then the
+  destination page's own entrance animations (hero/page-hero reveal) take over. The panel
+  is parked fully off-screen by default in CSS; JS only ever brings it into view in direct
+  response to a real, unmodified click on an internal link (external links, `mailto:`,
+  `tel:`, anchors, downloads, and modifier-key clicks all pass through untouched), so a
+  no-JS or reduced-motion visitor never sees it do anything — links just navigate normally.
 - Every page hero and section heading: fade-up + blur-to-sharp on scroll-in.
 - About's experience timeline: a vertical line draws progressively as you scroll; entries
   slide/fade in; engagement chips (linking to their Projects case study) stagger in under

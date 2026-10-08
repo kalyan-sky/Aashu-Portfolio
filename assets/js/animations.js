@@ -135,7 +135,6 @@
   revealBatch('.skill-group.reveal-up, .skills-teaser .skill-tag', { y: 22 });
   revealBatch('.cred-card.reveal-up', { y: 22 });
   revealBatch('.contact-panel-left .eyebrow, .contact-panel-left h2, .contact-panel-left p, .contact-panel-left .hero-actions, .contact-link');
-  revealBatch('.featured-projects .engagement-chip', { y: 24 });
 
   /* ================= TIMELINE ================= */
   const fillEl = document.getElementById('timeline-fill');
@@ -219,6 +218,88 @@
       },
     });
   });
+
+  /* ================= MARQUEE (Home only) ================= */
+  // Content is rendered twice back-to-back by render.js; looping the track
+  // exactly one copy's width makes the reset invisible.
+  const marqueeTrack = document.getElementById('marquee-track');
+  if (marqueeTrack) {
+    const marqueeTween = gsap.to(marqueeTrack, {
+      x: () => -marqueeTrack.scrollWidth / 2,
+      duration: 32,
+      ease: 'none',
+      repeat: -1,
+    });
+    const marqueeSection = marqueeTrack.closest('.marquee-section');
+    if (marqueeSection && !isTouch) {
+      marqueeSection.addEventListener('mouseenter', () => marqueeTween.timeScale(0.3));
+      marqueeSection.addEventListener('mouseleave', () => marqueeTween.timeScale(1));
+    }
+  }
+
+  /* ================= HORIZONTAL PINNED SHOWCASE (Home only) ================= */
+  // Classic motion-site device: pin the section and translate the card row
+  // horizontally as the user scrolls vertically. Desktop + hover-capable
+  // only — touch devices (even wide tablets) get the safe native swipeable
+  // row instead (.h-scroll's CSS default), since scroll-jacking fights
+  // touch-scroll gestures. ScrollTrigger.matchMedia handles resize cleanly.
+  const hPinWrap = document.getElementById('h-pin-wrap');
+  const hScroll = document.querySelector('.h-scroll');
+  const hTrack = document.getElementById('featured-projects');
+  const hProgress = document.querySelector('.h-progress');
+  const hProgressFill = document.querySelector('.h-progress-fill');
+  if (hPinWrap && hScroll && hTrack) {
+    ScrollTrigger.matchMedia({
+      '(min-width: 900px) and (hover: hover)': function () {
+        hScroll.classList.add('pin-active');
+        if (hProgress) hProgress.classList.add('active');
+        const getDistance = () => Math.max(0, hTrack.scrollWidth - hScroll.clientWidth);
+        const tween = gsap.to(hTrack, {
+          x: () => -getDistance(),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: hPinWrap,
+            start: 'top top',
+            end: () => '+=' + getDistance(),
+            pin: true,
+            scrub: 0.6,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => { if (hProgressFill) hProgressFill.style.width = (self.progress * 100) + '%'; },
+          },
+        });
+        // Cleanup when leaving this breakpoint (matchMedia requirement).
+        return () => {
+          tween.scrollTrigger && tween.scrollTrigger.kill();
+          tween.kill();
+          hScroll.classList.remove('pin-active');
+          if (hProgress) hProgress.classList.remove('active');
+          gsap.set(hTrack, { x: 0 });
+        };
+      },
+    });
+  }
+
+  /* ================= PAGE TRANSITION (click-triggered exit wipe) ================= */
+  // Parked fully off-screen by default (see style.css) — only ever brought
+  // into view in direct response to a click, right before navigating away.
+  // Never intercepts reduced-motion, modified clicks, downloads, external
+  // links, or anchors/mailto/tel — those all behave as plain navigation.
+  const transitionPanel = document.getElementById('page-transition');
+  if (transitionPanel) {
+    const transitionMark = transitionPanel.querySelector('.pt-mark');
+    document.querySelectorAll('a[href]').forEach((a) => {
+      const href = a.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+      if (a.target === '_blank' || a.hasAttribute('download') || /^https?:\/\//i.test(href)) return;
+      a.addEventListener('click', (e) => {
+        if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        gsap.timeline({ onComplete: () => { window.location.href = href; } })
+          .fromTo(transitionPanel, { yPercent: 100 }, { yPercent: 0, duration: 0.55, ease: 'power4.inOut' }, 0)
+          .fromTo(transitionMark, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.2);
+      });
+    });
+  }
 
   /* ================= CURSOR COMPANION + MAGNETIC BUTTONS (desktop only) ================= */
   if (!isTouch) {

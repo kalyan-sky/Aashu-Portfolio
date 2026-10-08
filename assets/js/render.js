@@ -78,13 +78,14 @@
   (function renderFeaturedProjects() {
     const el = $('featured-projects');
     if (!el) return;
-    const featured = R.projects.slice(0, 2);
-    el.innerHTML = featured.map((p, i) => `
-      <a class="engagement-chip reveal-up" href="projects.html#project-${p.id}" style="display:flex;flex-direction:column;align-items:flex-start;gap:.6rem;padding:22px 24px;">
-        <span class="case-index" style="font-family:var(--font-mono);font-size:.72rem;color:var(--accent);">${String(i + 1).padStart(2, '0')}</span>
-        <span class="name" style="font-size:1.05rem;">${p.name}</span>
+    el.innerHTML = R.projects.map((p, i) => `
+      <a class="h-card" href="projects.html#project-${p.id}">
+        <span class="case-index">${String(i + 1).padStart(2, '0')} / ${String(R.projects.length).padStart(2, '0')}</span>
+        <h3>${p.name}</h3>
         <span class="client">${p.client} · ${p.dates}</span>
-        <span class="arrow" style="opacity:1;">View case study →</span>
+        <p>${p.description}</p>
+        <div class="h-tags">${p.keySkills.slice(0, 4).map(s => `<span>${s}</span>`).join('')}</div>
+        <span class="arrow">View case study →</span>
       </a>
     `).join('');
   })();
@@ -93,6 +94,23 @@
     const el = $('skills-teaser');
     if (!el) return;
     el.innerHTML = R.skills.core.map(s => `<span class="skill-tag core reveal-up">${s}</span>`).join('');
+  })();
+
+  /* ---------------- MARQUEE (Home only) ---------------- */
+  (function renderMarquee() {
+    const el = $('marquee-track');
+    if (!el) return;
+    // De-duplicated list of every resume skill, for a long, varied ticker —
+    // deliberately distinct from the "Core stack" teaser lower on the page.
+    const seen = new Set();
+    const all = [];
+    R.skills.groups.forEach(g => g.items.forEach(item => {
+      const key = item.toLowerCase();
+      if (!seen.has(key)) { seen.add(key); all.push(item); }
+    }));
+    const itemsHtml = all.map(s => `<span>${s}</span>`).join('');
+    // Rendered twice back-to-back so animations.js can loop it seamlessly.
+    el.innerHTML = itemsHtml + itemsHtml;
   })();
 
   /* ---------------- PROFILE (About only) ---------------- */
