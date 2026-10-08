@@ -65,82 +65,17 @@
   </noscript>
 
   <main id="top">
-    <!-- ============ SYSTEM TRACE — scroll-scrubbed cinematic intro ============ -->
-    <section class="system-trace" id="system-trace">
-      <div class="trace-pin" id="trace-pin">
-        <canvas id="traceCanvas" aria-hidden="true"></canvas>
-        <div class="hero-scrim" aria-hidden="true"></div>
-        <div class="trace-vignette" aria-hidden="true"></div>
-        <div class="hero-scanline" aria-hidden="true"></div>
-
-        <div class="trace-chrome" aria-hidden="true">
-          <div class="trace-chrome-left">
-            <span class="trace-label">System Trace</span>
-            <span class="trace-rule"></span>
-          </div>
-          <div class="trace-chrome-right">
-            <span class="trace-count"><span id="trace-count-current">01</span> / <span id="trace-count-total">07</span></span>
-            <span class="trace-tag" id="trace-tag">Request</span>
-          </div>
-        </div>
-
-        <div class="trace-beats" id="trace-beats">
-          <div class="trace-beat" data-tag="Request">
-            <div class="trace-visual trace-visual--beam"></div>
-            <p class="trace-sub">Request initiated</p>
-            <h2 class="trace-headline">Every system starts with a request.</h2>
-          </div>
-
-          <div class="trace-beat" data-tag="API">
-            <p class="trace-sub">Client → API → Service</p>
-            <h2 class="trace-headline">A request becomes an API.</h2>
-            <div class="trace-secondary">ASP.NET Core · REST APIs · Authentication</div>
-          </div>
-
-          <div class="trace-beat" data-tag="Events">
-            <h2 class="trace-headline">Event&#8209;Driven</h2>
-            <div class="trace-chain">
-              <span>Service</span><span class="arrow">→</span><span>Event</span><span class="arrow">→</span><span>SNS / SQS</span><span class="arrow">→</span><span>Consumers</span>
-            </div>
-            <div class="trace-secondary">Asynchronous · Scalable · Resilient</div>
-          </div>
-
-          <div class="trace-beat" data-tag="Payments">
-            <div class="trace-visual trace-visual--vault"></div>
-            <h2 class="trace-headline">Payment Processing</h2>
-            <div class="trace-chain">
-              <span>Transaction</span><span class="arrow">→</span><span>Validation</span><span class="arrow">→</span><span>Processing</span><span class="arrow">→</span><span>Reconciliation</span>
-            </div>
-            <div class="trace-secondary">Secure · High&#8209;volume · Reconciled</div>
-            <div class="trace-terms">PayNow · GIRO · Credit Card · DBS · eNETS</div>
-          </div>
-
-          <div class="trace-beat" data-tag="Cloud">
-            <h2 class="trace-headline">Cloud&#8209;Native</h2>
-            <div class="trace-chain">
-              <span>Detect</span><span class="arrow">→</span><span>Route</span><span class="arrow">→</span><span>Recover</span>
-            </div>
-            <div class="trace-secondary">Containers · Orchestrated · Self&#8209;healing</div>
-            <div class="trace-terms">Lambda · ECS · EKS · API Gateway · RDS · S3 · CloudWatch</div>
-          </div>
-
-          <div class="trace-beat" data-tag="Observe">
-            <div class="trace-visual trace-visual--beam"></div>
-            <h2 class="trace-headline">Observability</h2>
-            <div class="trace-chain">
-              <span>Observe</span><span class="arrow">→</span><span>Detect</span><span class="arrow">→</span><span>Respond</span>
-            </div>
-            <div class="trace-secondary">SQL Server · Relational · Transactional</div>
-          </div>
-
-          <div class="trace-beat" data-tag="Scale">
-            <h2 class="trace-headline">Designed for scale.<br>Built for reliability.<br>Engineered for real&#8209;world systems.</h2>
-          </div>
-        </div>
-
-        <div class="container hero-content" id="hero-content"></div>
-        <div class="scroll-cue" id="scroll-cue"><span>Scroll</span><span class="line"></span></div>
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="hero">
+      <div class="hero-video-wrap" id="hero-video-wrap">
+        <video autoplay muted loop playsinline preload="auto" aria-hidden="true">
+          <source src="assets/video/hero.mp4" type="video/mp4">
+        </video>
       </div>
+      <div class="hero-scrim" aria-hidden="true"></div>
+      <div class="hero-scanline" aria-hidden="true"></div>
+      <div class="container hero-content" id="hero-content"></div>
+      <div class="scroll-cue" id="scroll-cue"><span>Scroll</span><span class="line"></span></div>
     </section>
 
     <!-- ============ MARQUEE ============ -->

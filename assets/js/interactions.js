@@ -13,22 +13,12 @@
   const navbar = document.getElementById('navbar');
   const progress = document.querySelector('.scroll-progress');
   const navH = 88;
-  // 'system-trace' is the Home page's pinned, scroll-scrubbed intro — GSAP
-  // stretches its outer section to the full multi-screen scroll distance of
-  // the pin, so using ITS height (not the fixed-viewport-sized stage inside
-  // it) keeps the navbar transparent for the whole dark sequence and only
-  // flips it solid once the lighter content below has actually scrolled
-  // into view. Falls back to the plain '#hero' some other layout might use.
-  const hero = document.getElementById('system-trace') || document.getElementById('hero');
-  // The pinned sequence should stay transparent-over-dark right up until it
-  // releases; a plain 1-viewport hero flips solid a bit earlier, anticipating
-  // the lighter content right behind it.
-  const heroThresholdRatio = document.getElementById('system-trace') ? 0.95 : 0.72;
+  const hero = document.getElementById('hero');
 
   /* ---------------- Scroll progress + navbar solid state ---------------- */
   const onScroll = () => {
     const y = window.scrollY;
-    const threshold = hero ? hero.offsetHeight * heroThresholdRatio : -1; // no hero on this page: navbar stays solid from the top
+    const threshold = hero ? hero.offsetHeight * 0.72 : -1; // no hero on this page: navbar stays solid from the top
     navbar.classList.toggle('solid', y > threshold);
 
     const max = document.documentElement.scrollHeight - window.innerHeight;
