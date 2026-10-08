@@ -514,35 +514,39 @@ section{ position: relative; padding: clamp(90px, 12vw, 160px) 0; scroll-margin-
 main{ position: relative; z-index: 1; }
 
 /* ================= HERO ================= */
-.hero{
+/* ================= SYSTEM TRACE — scroll-scrubbed cinematic intro ================= */
+/* A pinned, scroll-driven sequence standing in for the old autoplaying hero
+   video: scroll progress (not a timer) advances through architecture "beats"
+   drawn straight from the resume data (payment channels, AWS services, the
+   event-driven layer) before settling on the name card. Fixed dark stage —
+   independent of the light/dark site theme, same rationale the old hero had. */
+.system-trace{
   position: relative;
-  min-height: 100svh;
-  display:flex;
-  align-items:flex-end;
-  overflow: hidden;
-  /* Fixed dark fallback — independent of the light/dark site theme — so the
-     hero still reads as an intentional cinematic panel if the video never
-     loads (slow connection, blocked request, unsupported codec). */
   background: #05070c;
 }
-.hero-video-wrap{
-  position:absolute; inset:0; z-index:0;
-  overflow:hidden;
-  will-change: transform;
+.trace-pin{
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  display:flex; align-items:center; justify-content:center;
+  background: #05070c;
 }
-.hero-video-wrap video{
-  position:absolute; top:50%; left:50%;
-  width:100%; height:100%;
-  object-fit:cover;
-  transform: translate(-50%,-50%) scale(1.06);
-  filter: saturate(0.95) brightness(.56) contrast(1.08);
+#traceCanvas{
+  position:absolute; inset:0; z-index:0;
+  width:100%; height:100%; display:block;
+}
+.trace-vignette{
+  position:absolute; inset:0; z-index:1;
+  background:
+    radial-gradient(ellipse 72% 58% at 50% 48%, transparent 0%, rgba(5,7,12,.45) 68%, rgba(5,7,12,.92) 100%),
+    linear-gradient(180deg, rgba(5,7,12,.5) 0%, transparent 20%, transparent 76%, rgba(5,7,12,.7) 100%);
 }
 .hero-scrim{
   position:absolute; inset:0; z-index:1;
   background:
-    linear-gradient(180deg, rgba(3,5,10,.4) 0%, rgba(3,5,10,.22) 30%, rgba(3,5,10,.58) 68%, rgba(3,5,10,.95) 100%),
-    linear-gradient(90deg, rgba(3,5,10,.55) 0%, rgba(3,5,10,0) 45%),
-    radial-gradient(ellipse 60% 45% at 78% 15%, rgba(34,229,255,.14), transparent 60%);
+    linear-gradient(180deg, rgba(3,5,10,.3) 0%, rgba(3,5,10,.12) 30%, rgba(3,5,10,.3) 68%, rgba(3,5,10,.8) 100%),
+    radial-gradient(ellipse 60% 45% at 78% 15%, rgba(34,229,255,.1), transparent 60%);
 }
 .hero-scanline{
   position:absolute; left:0; right:0; height:120px; z-index:1;
@@ -557,10 +561,125 @@ main{ position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce){
   .hero-scanline{ display:none; }
 }
+
+.trace-chrome{
+  position:absolute; inset:0; z-index:4;
+  padding: clamp(20px,4vw,40px);
+  font-family: var(--font-mono);
+  pointer-events:none;
+}
+.trace-chrome-left, .trace-chrome-right{
+  position:absolute; top: clamp(20px,4vw,40px);
+}
+.trace-chrome-left{ left: clamp(20px,4vw,40px); }
+.trace-chrome-right{ right: clamp(20px,4vw,40px); text-align:right; }
+.trace-label{
+  font-size:.72rem; letter-spacing:.22em; text-transform:uppercase;
+  color: rgba(238,242,250,.55);
+}
+.trace-rule{
+  display:block; width:46px; height:1px; margin-top:8px;
+  background: rgba(238,242,250,.3);
+}
+.trace-count{
+  font-size:.72rem; letter-spacing:.16em; color: rgba(238,242,250,.5);
+  font-variant-numeric: tabular-nums;
+}
+.trace-tag{
+  display:block; margin-top:6px;
+  font-size:.7rem; letter-spacing:.2em; text-transform:uppercase;
+  color: #7cf1ff;
+}
+@media (max-width: 640px){
+  /* The name card's two-line kicker ("Senior .NET… · Singapore") can wrap
+     close enough to the top-right chrome tag to crowd it at this width. */
+  .hero-content .hero-kicker{ font-size:.68rem; max-width:300px; margin-left:auto; margin-right:auto; }
+}
+
+.trace-beats{ position:absolute; inset:0; z-index:2; }
+.trace-beat{
+  position:absolute; inset:0; z-index:2;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center;
+  padding: 0 clamp(20px,6vw,60px);
+  opacity:0;
+}
+.trace-beat:first-child{ opacity:1; }
+.trace-sub{
+  font-family: var(--font-mono);
+  font-size:.76rem; letter-spacing:.24em; text-transform:uppercase;
+  color: rgba(238,242,250,.55);
+  margin-bottom: 1.5rem;
+}
+.trace-headline{
+  font-family: var(--font-display);
+  font-weight:700;
+  font-size: clamp(1.7rem, 4.4vw, 3.2rem);
+  line-height:1.18;
+  color:#f3f5fb;
+  max-width: 900px;
+}
+.trace-chain{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:.8rem;
+  margin-top:1.8rem;
+  font-family: var(--font-mono);
+  font-size:.84rem; letter-spacing:.06em; text-transform:uppercase;
+  color: rgba(238,242,250,.72);
+}
+.trace-chain .arrow{ color:#22e5ff; opacity:.75; }
+.trace-secondary{
+  margin-top:1rem;
+  font-family: var(--font-mono);
+  font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  color: rgba(238,242,250,.4);
+}
+.trace-terms{
+  margin-top:2.2rem;
+  display:flex; flex-wrap:wrap; justify-content:center; gap: .5rem 1.4rem;
+  font-family: var(--font-mono);
+  font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+  color: rgba(124,241,255,.6);
+}
+
+/* Beat-specific decorative accents — layered behind the text, above the canvas. */
+.trace-visual{ position:absolute; z-index:1; pointer-events:none; }
+.trace-visual--beam{
+  top:0; left:50%; width:1px; height:46%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, transparent, rgba(124,241,255,.5) 70%, rgba(124,241,255,.9));
+}
+.trace-visual--beam::after{
+  content:''; position:absolute; left:50%; bottom:0; width:220px; height:220px;
+  transform: translate(-50%, 50%);
+  background: radial-gradient(circle, rgba(34,229,255,.3), transparent 70%);
+  border-radius:50%;
+}
+/* Soft, fully blurred bloom — sits behind the text with no hard edge, so it
+   never reads as a line cutting through a word at any viewport width. */
+.trace-visual--vault{
+  top:50%; left:50%; width:62vw; height:62vw;
+  max-width:640px; max-height:640px;
+  transform: translate(-50%,-50%) scale(1);
+  background: radial-gradient(circle, rgba(34,229,255,.18) 0%, rgba(178,107,255,.08) 48%, transparent 72%);
+  border-radius:50%;
+  filter: blur(18px);
+  animation: vaultPulse 7s ease-in-out infinite;
+}
+@keyframes vaultPulse{
+  0%,100%{ transform: translate(-50%,-50%) scale(1); opacity:.75; }
+  50%{ transform: translate(-50%,-50%) scale(1.08); opacity:1; }
+}
+@media (prefers-reduced-motion: reduce){
+  .trace-visual--vault{ animation:none; }
+}
+
 .hero-content{
-  position: relative; z-index: 2;
+  position: relative; z-index: 3;
   width:100%;
-  padding-bottom: clamp(64px, 9vw, 110px);
+  max-width: 880px;
+  margin: 0 auto;
+  text-align:center;
+  opacity:0;
 }
 .hero-kicker{
   font-family: var(--font-mono);
@@ -569,7 +688,7 @@ main{ position: relative; z-index: 1; }
   text-transform: uppercase;
   color: var(--hero-ink-dim);
   margin-bottom: 1.6rem;
-  display:flex; align-items:center; gap: .8em;
+  display:flex; align-items:center; justify-content:center; gap: .8em;
 }
 .hero-kicker .dot{
   width:6px; height:6px; border-radius:50%;
@@ -618,8 +737,40 @@ main{ position: relative; z-index: 1; }
 }
 .hero-foot-links a:hover{ color: #7cf1ff; }
 
+/* Hero content now lives centered inside the trace stage as its final "beat". */
+.hero-content .hero-actions{ justify-content:center; }
+/* The trace stage is always dark, independent of the site theme — .btn-ghost's
+   default colors (var(--ink)/var(--line-strong)) track the theme and go
+   near-invisible here in light mode, so pin it to the same fixed hero tones
+   the kicker/title/foot already use. */
+.hero-content .btn-ghost{
+  color: var(--hero-ink);
+  border-color: rgba(255,255,255,.3);
+}
+.hero-content .btn-ghost:hover{
+  border-color: #22e5ff;
+  color: #7cf1ff;
+}
+.hero-content .hero-foot{
+  flex-direction:column; align-items:center; justify-content:center;
+  border-top: none; margin-top: 3.2rem; padding-top:0;
+}
+.hero-content .hero-foot-links{ justify-content:center; }
+.hero-tags{
+  display:flex; flex-wrap:wrap; justify-content:center; gap: .6rem 1rem;
+  margin-top: 1.8rem;
+  font-family: var(--font-mono);
+  font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+}
+.hero-tags span{
+  padding: .4em .9em;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  color: var(--hero-ink-dim);
+}
+
 .scroll-cue{
-  position:absolute; z-index:2;
+  position:absolute; z-index:4;
   right: clamp(20px, 5vw, 56px); bottom: 40px;
   display:flex; flex-direction:column; align-items:center; gap:.7rem;
   color: var(--hero-ink-faint);

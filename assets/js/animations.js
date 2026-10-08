@@ -23,6 +23,17 @@
     document.querySelectorAll('.diagram-connector').forEach(el => { el.style.transform = 'scaleY(1)'; });
     const fill = document.getElementById('timeline-fill');
     if (fill) fill.style.height = '100%';
+    // System Trace: skip the scroll-scrubbed sequence entirely, land straight
+    // on the name card (no canvas, no pin — avoids scroll-jacking either way).
+    document.querySelectorAll('.trace-beat').forEach(el => { el.style.display = 'none'; });
+    const traceChrome = document.querySelector('.trace-chrome');
+    if (traceChrome) traceChrome.style.display = 'none';
+    const heroContent = document.getElementById('hero-content');
+    if (heroContent) {
+      heroContent.style.opacity = '1';
+      heroContent.style.transform = 'none';
+      heroContent.style.filter = 'none';
+    }
     return;
   }
 
@@ -62,37 +73,156 @@
     });
   }
 
-  /* ================= HERO (Home page only) ================= */
-  const heroEl = document.getElementById('hero');
-  if (heroEl) {
-    // Intro — plays once on load.
-    const heroTl = gsap.timeline({ defaults: { ease: 'power4.out' } });
-    heroTl
-      .fromTo('.split-inner', { yPercent: 115 }, { yPercent: 0, duration: 1.2 })
-      .fromTo('.hero-kicker', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .7 }, 0.15)
-      .fromTo('.hero-title', { opacity: 0, y: 18, filter: 'blur(5px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: .8 }, 0.55)
-      .fromTo('#hero-content .hero-actions', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .7 }, 0.72)
-      .fromTo('.hero-foot', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .7 }, 0.86)
-      .fromTo('.scroll-cue', { opacity: 0 }, { opacity: 1, duration: .6 }, 1.1);
+  /* ================= SYSTEM TRACE (Home page only) =================
+     A pinned, scroll-scrubbed sequence: scrolling (not a timer) advances
+     through architecture "beats" — each one straight off the resume data
+     (payment channels, AWS services, the event-driven layer) — ending on
+     the name card. Replaces the old autoplaying hero video. */
+  const traceSection = document.getElementById('system-trace');
+  if (traceSection) {
+    const pin = document.getElementById('trace-pin');
+    const beatEls = gsap.utils.toArray('.trace-beat');
+    const heroContent = document.getElementById('hero-content');
+    const panels = [...beatEls, heroContent];
+    const tags = beatEls.map(b => b.dataset.tag || '');
+    const countEl = document.getElementById('trace-count-current');
+    const tagEl = document.getElementById('trace-tag');
 
-    // Scroll-out — scrubbed parallax as the hero leaves the viewport.
-    gsap.to('.hero-video-wrap video', {
-      scale: 1.22,
-      y: 40,
-      ease: 'none',
-      scrollTrigger: { trigger: heroEl, start: 'top top', end: 'bottom top', scrub: 0.6 },
+    const canvas = initTraceCanvas();
+
+    gsap.set(panels, { opacity: 0, y: 24, filter: 'blur(6px)' });
+    gsap.set(panels[0], { opacity: 1, y: 0, filter: 'blur(0px)' });
+    gsap.set('.hero-content .split-inner', { yPercent: 115 });
+    gsap.set('#scroll-cue', { opacity: 0 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: traceSection,
+        start: 'top top',
+        end: '+=' + (panels.length * 70) + '%',
+        scrub: 0.6,
+        pin: pin,
+        anticipatePin: 1,
+        onUpdate(self) {
+          const idx = Math.min(tags.length - 1, Math.floor(self.progress * tags.length));
+          countEl.textContent = String(idx + 1).padStart(2, '0');
+          tagEl.textContent = tags[idx];
+          if (canvas) canvas.setIntensity(idx / Math.max(1, tags.length - 1));
+        },
+      },
     });
-    gsap.to('#hero-content', {
-      opacity: 0.08,
-      y: -70,
-      ease: 'none',
-      scrollTrigger: { trigger: heroEl, start: 'top top', end: 'bottom top', scrub: 0.6 },
-    });
+
+    for (let i = 0; i < panels.length - 1; i++) {
+      tl.to(panels[i], { opacity: 0, y: -20, filter: 'blur(6px)', duration: 0.4, ease: 'power2.in' }, i + 0.5)
+        .to(panels[i + 1], { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out' }, i + 0.6);
+    }
+    // Name-card mask reveal + staggered kicker/title/tags/actions/foot, riding
+    // the same beat as hero-content's own fade-in (those carry the site-wide
+    // .reveal-up opacity:0 default — nothing else reveals them here).
+    tl.to('.hero-content .split-inner', { yPercent: 0, duration: 0.45, ease: 'power3.out' }, panels.length - 1.4)
+      .to('.hero-content .reveal-up', {
+        opacity: 1, y: 0, filter: 'blur(0px)',
+        duration: 0.35, stagger: 0.06, ease: 'power2.out',
+      }, panels.length - 1.3)
+      .fromTo('#scroll-cue', { opacity: 0 }, { opacity: 1, duration: 0.3 }, panels.length - 1.05);
+
     gsap.to('#scroll-cue', {
-      opacity: 0,
-      ease: 'none',
-      scrollTrigger: { trigger: heroEl, start: 'top top', end: '30% top', scrub: 0.4 },
+      opacity: 0, ease: 'none',
+      scrollTrigger: { trigger: traceSection, start: 'bottom bottom', end: '+=20%', scrub: 0.4 },
     });
+  }
+
+  /* ---------------- System Trace background: starfield + drifting node network ---------------- */
+  function initTraceCanvas() {
+    const canvas = document.getElementById('traceCanvas');
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    let W, H, DPR, stars, nodes, pulses, frame = 0, intensity = 0.15, raf;
+
+    function build() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = canvas.clientWidth; H = canvas.clientHeight;
+      canvas.width = Math.round(W * DPR);
+      canvas.height = Math.round(H * DPR);
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      stars = Array.from({ length: 130 }, () => ({
+        x: Math.random() * W, y: Math.random() * H,
+        r: Math.random() * 1.3 + .3, tw: Math.random() * Math.PI * 2,
+      }));
+      nodes = Array.from({ length: 24 }, () => ({
+        x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.16, vy: (Math.random() - 0.5) * 0.16,
+        r: 1.5 + Math.random() * 1.6,
+      }));
+      pulses = [];
+    }
+    build();
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(build, 200);
+    });
+
+    function tick() {
+      frame++;
+      ctx.clearRect(0, 0, W, H);
+
+      stars.forEach((s) => {
+        const a = 0.3 + Math.sin(frame * 0.012 + s.tw) * 0.22;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(226,236,255,${Math.max(0, a)})`;
+        ctx.fill();
+      });
+
+      const maxDist = 170 + intensity * 100;
+      nodes.forEach((n) => {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > W) n.vx *= -1;
+        if (n.y < 0 || n.y > H) n.vy *= -1;
+      });
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < maxDist) {
+            const alpha = (1 - d / maxDist) * (0.1 + intensity * 0.26);
+            ctx.strokeStyle = `rgba(34,229,255,${alpha})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+            if (frame % 220 === (i * 7 + j) % 220) pulses.push({ a, b, t: 0 });
+          }
+        }
+      }
+      for (let i = pulses.length - 1; i >= 0; i--) {
+        const p = pulses[i];
+        p.t += 0.018;
+        if (p.t >= 1) { pulses.splice(i, 1); continue; }
+        const px = p.a.x + (p.b.x - p.a.x) * p.t;
+        const py = p.a.y + (p.b.y - p.a.y) * p.t;
+        ctx.beginPath();
+        ctx.arc(px, py, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(124,241,255,0.85)';
+        ctx.fill();
+      }
+      nodes.forEach((n) => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(34,229,255,${0.45 + intensity * 0.3})`;
+        ctx.fill();
+      });
+
+      raf = requestAnimationFrame(tick);
+    }
+    tick();
+
+    return {
+      setIntensity(v) { intensity = v; },
+    };
   }
 
   /* ================= STAT COUNTERS (Home only) ================= */

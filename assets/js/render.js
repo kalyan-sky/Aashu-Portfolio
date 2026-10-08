@@ -33,6 +33,7 @@
       <p class="hero-kicker reveal-up"><span class="dot"></span>${R.person.title} · ${R.person.location}</p>
       <h1 class="hero-name"><span class="split-line"><span class="split-inner">${first} <em>${last}</em></span></span></h1>
       <p class="hero-title reveal-up">${R.person.subtitle} — 7+ years delivering enterprise-scale applications across ${R.domains.join(', ')}.</p>
+      <div class="hero-tags reveal-up">${R.skills.core.map(s => `<span>${s}</span>`).join('')}</div>
       <div class="hero-actions reveal-up">
         <a href="about.html" class="btn btn-primary">View Experience</a>
         <a href="projects.html" class="btn btn-ghost">See Case Studies</a>
