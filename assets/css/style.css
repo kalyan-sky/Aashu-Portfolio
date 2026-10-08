@@ -1119,3 +1119,297 @@ footer{ border-top: 1px solid var(--line); padding: 48px 0 32px; }
 @media (prefers-reduced-motion: reduce){
   *{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior:auto !important; }
 }
+
+/* ==========================================================================
+   SYSTEM EXPERIENCE — the Home page, rebuilt as an interactive visualization
+   of a cloud-native production system ("one request, an entire engineering
+   system") rather than a conventional resume layout. Always dark — the page
+   sets data-theme="dark" itself, so every var() below already resolves to
+   the dark palette; nothing here needs its own duplicate tokens.
+   ========================================================================== */
+
+.system-shell{ background: var(--bg); }
+.sys-raised{ background: var(--bg-raised); }
+.sys-head p{ color: var(--ink-dim); }
+
+/* ---------------- HERO ---------------- */
+.sys-hero{
+  position: relative;
+  min-height: 100svh;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  background: var(--bg);
+}
+#heroCanvas{ position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+.sys-hero-scrim{
+  position:absolute; inset:0; z-index:1;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 42%, transparent 0%, rgba(5,7,12,.5) 70%, rgba(5,7,12,.92) 100%),
+    linear-gradient(180deg, rgba(5,7,12,.35) 0%, transparent 25%, transparent 70%, rgba(5,7,12,.85) 100%);
+}
+.sys-grid-overlay{
+  position:absolute; inset:0; z-index:1;
+  opacity:.5;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 70% 55% at 50% 40%, #000 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 40%, #000 20%, transparent 80%);
+}
+.sys-hero-content{ position:relative; z-index:2; text-align:center; max-width: 900px; margin:0 auto; }
+.sys-kicker{
+  display:flex; align-items:center; justify-content:center; gap:.8em;
+  font-family: var(--font-mono); font-size:.78rem; letter-spacing:.2em; text-transform:uppercase;
+  color: var(--ink-dim); margin-bottom: 2rem;
+}
+.sys-kicker .dot{
+  width:6px; height:6px; border-radius:50%; background: var(--accent);
+  box-shadow: 0 0 10px var(--accent), 0 0 22px rgba(34,229,255,.6);
+}
+.sys-hero-name{
+  font-family: var(--font-display); font-weight:700;
+  font-size: clamp(2.6rem, 8vw, 6.4rem);
+  line-height:1.02; letter-spacing:-.01em; color: var(--ink);
+}
+.sys-hero-tag{
+  margin-top: 1.4rem;
+  font-family: var(--font-mono); font-size: clamp(.95rem, 1.8vw, 1.3rem);
+  letter-spacing:.06em; color: var(--accent-bright);
+}
+.sys-hero-line{
+  margin-top: 1rem;
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  color: var(--ink-dim);
+}
+.sys-hero-actions{ display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top: 2.8rem; }
+
+/* ---------------- INTERACTIVE ARCHITECTURE ---------------- */
+.arch-diagram{
+  position: relative;
+  width:100%;
+  aspect-ratio: 2 / 1;
+  margin-top: 1rem;
+}
+.arch-lines{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.arch-lines path{
+  fill:none; stroke: var(--line-strong); stroke-width:.35;
+}
+.arch-lines .flow-dot{ fill: var(--accent-bright); filter: drop-shadow(0 0 4px var(--accent)); }
+
+.arch-nodes{ position:absolute; inset:0; }
+.arch-node{
+  position:absolute;
+  transform: translate(-50%,-50%);
+  display:flex; flex-direction:column; align-items:center; gap:.5rem;
+  background:none; border:none; padding:0; cursor:pointer;
+  font-family: var(--font-mono); color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+}
+.arch-node-dot{
+  width:14px; height:14px; border-radius:50%;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--line-strong);
+  box-shadow: 0 0 0 0 rgba(34,229,255,0);
+  transition: all .35s var(--ease-out);
+}
+.arch-node-label{
+  font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+  color: var(--ink-dim);
+  white-space:nowrap;
+  transition: color .3s ease;
+}
+.arch-node:hover .arch-node-dot,
+.arch-node:focus-visible .arch-node-dot,
+.arch-node.active .arch-node-dot{
+  width:20px; height:20px;
+  background: var(--accent);
+  border-color: var(--accent-bright);
+  box-shadow: 0 0 0 8px rgba(34,229,255,.12), 0 0 18px rgba(34,229,255,.5);
+}
+.arch-node:hover .arch-node-label,
+.arch-node:focus-visible .arch-node-label,
+.arch-node.active .arch-node-label{ color: var(--accent-bright); }
+.arch-node:focus-visible{ outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 10px; }
+
+.arch-detail{
+  margin-top: clamp(32px, 5vw, 56px);
+  padding: clamp(24px,3vw,36px);
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+  min-height: 160px;
+  display:flex; flex-direction:column; justify-content:center;
+}
+.arch-detail-idle{
+  font-family: var(--font-mono); font-size:.85rem; color: var(--ink-faint);
+  text-align:center;
+}
+.arch-detail-head{ display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
+.arch-detail-head h3{ font-size: clamp(1.3rem,2.4vw,1.8rem); }
+.arch-detail-head .sub{ font-family: var(--font-mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color: var(--accent); }
+.arch-detail-blurb{ color: var(--ink-dim); max-width: 640px; margin-bottom: 1.4rem; }
+.arch-detail-tech{ display:flex; flex-wrap:wrap; gap:.6rem; margin-bottom: 1.2rem; }
+.arch-detail-tech span{
+  font-family: var(--font-mono); font-size:.7rem; letter-spacing:.05em;
+  padding:.4em .85em; border:1px solid var(--line-strong); color: var(--ink-dim);
+}
+.arch-detail-metric{
+  display:inline-flex; align-items:baseline; gap:.6em; margin-bottom:1.2rem;
+  font-family: var(--font-mono);
+}
+.arch-detail-metric .num{ font-size:1.6rem; font-weight:600; color: var(--accent-bright); }
+.arch-detail-metric .label{ font-size:.74rem; color: var(--ink-faint); }
+.arch-detail-link{
+  font-family: var(--font-mono); font-size:.76rem; letter-spacing:.06em;
+  color: var(--accent-bright); display:inline-flex; align-items:center; gap:.5em;
+}
+
+/* Mobile: diagram collapses to a tappable vertical stepper — the 2D graph
+   layout doesn't read at phone width, so the same node buttons are reused
+   in a simpler, equally-interactive list instead of shrinking to illegible. */
+@media (max-width: 760px){
+  .arch-diagram{ aspect-ratio:auto; height:auto; }
+  .arch-lines{ display:none; }
+  .arch-nodes{
+    position:static;
+    display:flex; flex-direction:column; gap: 0;
+    border-left: 1px dashed var(--line-strong);
+    margin-left: 7px;
+  }
+  .arch-node{
+    position:static; transform:none;
+    flex-direction:row; align-items:center; gap:.9rem;
+    padding: 14px 0 14px 20px;
+    width:100%;
+  }
+  .arch-node-label{ white-space:normal; text-align:left; }
+}
+
+/* ---------------- ABOUT — ENGINEER BEHIND THE SYSTEM ---------------- */
+.sys-about{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--line); border:1px solid var(--line); }
+.sys-about-card{ background: var(--bg); padding: clamp(24px,3vw,32px); }
+.sys-about-card h3{ font-family: var(--font-mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color: var(--accent); margin-bottom:1rem; }
+.sys-about-card .big{ font-family: var(--font-display); font-size: clamp(2rem,4vw,2.8rem); font-weight:700; color: var(--ink); }
+.sys-about-card p{ color: var(--ink-dim); margin-top:.5rem; }
+.sys-about-chips{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.3rem; }
+.sys-about-chips span{
+  font-family: var(--font-mono); font-size:.72rem; padding:.4em .8em;
+  border:1px solid var(--line-strong); color: var(--ink-dim);
+}
+
+/* ---------------- EXPERIENCE — SYSTEM MODULES ---------------- */
+.sys-modules{ display:flex; flex-direction:column; gap: 1px; background: var(--line); border:1px solid var(--line); }
+.sys-module{
+  background: var(--bg); padding: clamp(24px,3.5vw,44px);
+  display:grid; grid-template-columns: minmax(200px,280px) 1fr; gap: clamp(24px,3vw,40px);
+}
+.sys-module-meta .status{
+  display:inline-flex; align-items:center; gap:.5em;
+  font-family: var(--font-mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+  color: var(--accent); margin-bottom:1rem;
+}
+.sys-module-meta .status .dot{ width:6px;height:6px;border-radius:50%; background: var(--accent); box-shadow:0 0 8px var(--accent); }
+.sys-module-meta h3{ font-size: clamp(1.2rem,2vw,1.5rem); }
+.sys-module-meta .role{ font-family: var(--font-mono); font-size:.78rem; color: var(--ink-dim); margin-top:.4rem; display:block; }
+.sys-module-meta .org{ font-size:.82rem; color: var(--ink-faint); margin-top:.2rem; display:block; }
+.sys-module-meta .dates{ font-family: var(--font-mono); font-size:.7rem; color: var(--ink-faint); margin-top:.6rem; display:block; }
+.sys-module-body .project{ font-family: var(--font-mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color: var(--ink-faint); margin-bottom:.6rem; }
+.sys-module-body p{ color: var(--ink-dim); margin-bottom:1.2rem; }
+.sys-module-stack{ display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1.2rem; }
+.sys-module-stack span{
+  font-family: var(--font-mono); font-size:.7rem; padding:.4em .8em;
+  border:1px solid var(--line-strong); color: var(--ink-dim);
+}
+.sys-module-stack span.core{ color: var(--accent-bright); border-color: rgba(34,229,255,.35); }
+.sys-module-metric{ display:inline-flex; align-items:baseline; gap:.6em; }
+.sys-module-metric .num{ font-family:var(--font-display); font-size:1.8rem; font-weight:700; color: var(--accent-bright); }
+.sys-module-metric .label{ font-family: var(--font-mono); font-size:.72rem; color: var(--ink-faint); max-width:220px; }
+@media (max-width: 760px){
+  .sys-module{ grid-template-columns: 1fr; }
+}
+
+/* ---------------- PROJECTS — INTERACTIVE CASE STUDIES ---------------- */
+.sys-projects{ display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:1px; background: var(--line); border:1px solid var(--line); }
+.sys-project{ background: var(--bg); }
+.sys-project-trigger{
+  width:100%; text-align:left; background:none; border:none; cursor:pointer;
+  padding: clamp(22px,3vw,30px); color:inherit; font:inherit;
+  display:flex; flex-direction:column; gap:.6rem;
+}
+.sys-project-trigger .index{ font-family: var(--font-mono); font-size:.68rem; color: var(--ink-faint); letter-spacing:.1em; }
+.sys-project-trigger h3{ font-size: clamp(1.1rem,2vw,1.35rem); }
+.sys-project-trigger .client{ font-family: var(--font-mono); font-size:.72rem; color: var(--ink-faint); }
+.sys-project-trigger .toggle-cue{ font-family: var(--font-mono); font-size:.7rem; color: var(--accent); margin-top:.4rem; }
+.sys-project-panel{
+  max-height:0; overflow:hidden; transition: max-height .5s var(--ease-out);
+  border-top: 1px solid transparent;
+}
+.sys-project.open .sys-project-panel{ max-height: 1400px; border-top-color: var(--line); }
+.sys-project-panel-inner{ padding: 0 clamp(22px,3vw,30px) clamp(26px,3vw,32px); }
+.sys-project-field{ margin-bottom:1.1rem; }
+.sys-project-field .k{ display:block; font-family: var(--font-mono); font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color: var(--accent); margin-bottom:.4rem; }
+.sys-project-field .v{ color: var(--ink-dim); }
+.sys-project-tech{ display:flex; flex-wrap:wrap; gap:.5rem; }
+.sys-project-tech span{ font-family: var(--font-mono); font-size:.68rem; padding:.35em .75em; border:1px solid var(--line-strong); color: var(--ink-dim); }
+.sys-project-impact{ display:inline-flex; align-items:baseline; gap:.5em; }
+.sys-project-impact .num{ font-family: var(--font-display); font-weight:700; font-size:1.4rem; color: var(--accent-bright); }
+
+/* ---------------- SKILLS — TECHNOLOGY CONSTELLATION ---------------- */
+.sys-constellation{ display:flex; flex-direction:column; gap: clamp(20px,2.4vw,28px); }
+.sys-constellation-group{ }
+.sys-constellation-group h4{
+  font-family: var(--font-mono); font-size:.68rem; letter-spacing:.16em; text-transform:uppercase;
+  color: var(--ink-faint); margin-bottom:.9rem;
+}
+.sys-constellation-items{ display:flex; flex-wrap:wrap; gap:.6rem; }
+.sys-tech{
+  font-family: var(--font-mono); font-size:.78rem; letter-spacing:.03em;
+  padding:.55em 1.1em; border:1px solid var(--line-strong); color: var(--ink-dim);
+  background: var(--bg-elevated); cursor:pointer; transition: all .25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.sys-tech:hover, .sys-tech:focus-visible{ border-color: var(--accent); color: var(--accent-bright); }
+.sys-tech.active{ border-color: var(--accent); color: var(--bg); background: var(--accent); }
+.sys-constellation-detail{
+  margin-top: clamp(24px,3vw,36px); padding: clamp(20px,2.6vw,28px);
+  border: 1px solid var(--line); background: var(--bg-elevated);
+  display:none;
+}
+.sys-constellation-detail.visible{ display:block; }
+.sys-constellation-detail .label{ font-family: var(--font-mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color: var(--accent); margin-bottom:.8rem; }
+.sys-constellation-detail .engagement{
+  display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap;
+  padding: .7rem 0; border-bottom: 1px solid var(--line);
+}
+.sys-constellation-detail .engagement:last-child{ border-bottom:none; }
+.sys-constellation-detail .engagement .name{ color: var(--ink); }
+.sys-constellation-detail .engagement .org{ font-family: var(--font-mono); font-size:.72rem; color: var(--ink-faint); }
+
+/* ---------------- CERTIFICATIONS — SYSTEM BADGES ---------------- */
+.sys-badges{ display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 1px; background: var(--line); border:1px solid var(--line); }
+.sys-badge{ background: var(--bg); padding: clamp(22px,2.8vw,28px); display:flex; gap:1rem; align-items:flex-start; }
+.sys-badge-mark{
+  flex:none; width:40px;height:40px; border:1px solid var(--accent); color: var(--accent);
+  display:flex; align-items:center; justify-content:center; font-family: var(--font-mono); font-size:.9rem;
+}
+.sys-badge h3{ font-size:1rem; }
+.sys-badge span{ font-family: var(--font-mono); font-size:.72rem; color: var(--ink-faint); display:block; margin-top:.3rem; }
+
+/* ---------------- FINAL — COLLAPSE BACK TO ONE REQUEST ---------------- */
+.sys-final{
+  position:relative; min-height:100svh;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; background: var(--bg);
+}
+#finalCanvas{ position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+.sys-final-scrim{
+  position:absolute; inset:0; z-index:1;
+  background: radial-gradient(ellipse 60% 55% at 50% 50%, transparent 0%, rgba(5,7,12,.6) 70%, rgba(5,7,12,.95) 100%);
+}
+.sys-final-content{ position:relative; z-index:2; text-align:center; }
+.sys-final-name{ font-family: var(--font-display); font-weight:700; font-size: clamp(2.2rem,6vw,4.4rem); color: var(--ink); }
+.sys-final-title{ margin-top:.8rem; font-family: var(--font-mono); font-size:.95rem; color: var(--ink-dim); }
+.sys-final-tagline{ margin-top:1.4rem; font-size: clamp(1rem,1.6vw,1.2rem); color: var(--accent-bright); font-style:italic; }
+.sys-final-links{ margin-top: 2.6rem; display:flex; gap:1.6rem; justify-content:center; flex-wrap:wrap; font-family: var(--font-mono); font-size:.82rem; }
+.sys-final-links a{ color: var(--ink-dim); transition: color .3s ease; }
+.sys-final-links a:hover{ color: var(--accent-bright); }
