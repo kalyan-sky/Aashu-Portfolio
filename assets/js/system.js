@@ -209,16 +209,16 @@
     if (!el) return;
     const coreEngineering = [...R.skills.core, 'Kubernetes', 'SQL Server'];
     el.innerHTML = `
-      <div class="sys-about-card">
+      <div class="sys-about-card sys-card">
         <h3>Experience</h3>
         <div class="big">${R.stats[0].value}</div>
         <p>${R.stats[0].label} across ${R.stats[1].value} organizations and ${R.stats[2].value} enterprise engagements.</p>
       </div>
-      <div class="sys-about-card">
+      <div class="sys-about-card sys-card">
         <h3>Domains</h3>
         <div class="sys-about-chips">${R.domains.map((d) => `<span>${d}</span>`).join('')}</div>
       </div>
-      <div class="sys-about-card">
+      <div class="sys-about-card sys-card">
         <h3>Core Engineering</h3>
         <div class="sys-about-chips">${coreEngineering.map((s) => `<span>${s}</span>`).join('')}</div>
       </div>
@@ -235,7 +235,7 @@
         ? `<div class="sys-module-metric"><span class="num">${p.metric.value}</span><span class="label">${p.metric.label}</span></div>`
         : '';
       return `
-        <article class="sys-module">
+        <article class="sys-module sys-card">
           <div class="sys-module-meta">
             <span class="status"><span class="dot"></span>${exp && exp.current ? 'Current' : 'Completed'}</span>
             <h3>${exp ? exp.role : ''}</h3>
@@ -270,7 +270,7 @@
         ? `<div class="sys-project-impact"><span class="num">${p.metric.value}</span><span>${p.metric.label}</span></div>`
         : `<p>${p.contributions[p.contributions.length - 1]}</p>`;
       return `
-        <div class="sys-project" id="sys-project-${p.id}">
+        <div class="sys-project sys-card" id="sys-project-${p.id}">
           <button type="button" class="sys-project-trigger" aria-expanded="false" data-project="${p.id}">
             <span class="index">${num} / ${String(R.projects.length).padStart(2, '0')}</span>
             <h3>${p.name}</h3>
@@ -381,7 +381,7 @@
     const el = $('sys-badges');
     if (!el) return;
     el.innerHTML = R.certifications.map((c) => `
-      <div class="sys-badge">
+      <div class="sys-badge sys-card">
         <span class="sys-badge-mark"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12.5 9.5 18 20 6"/></svg></span>
         <div>
           <h3>${c.name}</h3>
@@ -407,7 +407,7 @@
     const canvas = $('heroCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let W, H, DPR, nodes, pulses, requestDot, frame = 0, raf;
+    let W, H, DPR, nodes, pulses, requestDot, gridT = 0, frame = 0, raf;
 
     function build() {
       DPR = Math.min(window.devicePixelRatio || 1, 2);
@@ -426,8 +426,45 @@
     let resizeTimer;
     window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(build, 200); });
 
+    // A perspective grid floor converging to a vanishing point on the
+    // horizon — the "flying through a live cloud architecture" read the
+    // reference video established, rather than a flat field of dots.
+    function drawGridFloor(t) {
+      const horizonY = H * 0.56;
+      const vanishX = W * 0.5;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(124,241,255,1)';
+      ctx.lineWidth = 1;
+      const spread = 16;
+      for (let i = -spread; i <= spread; i++) {
+        const xBottom = vanishX + i * (W / spread) * 1.15;
+        ctx.globalAlpha = 0.07 + 0.03 * (1 - Math.abs(i) / spread);
+        ctx.beginPath();
+        ctx.moveTo(vanishX, horizonY);
+        ctx.lineTo(xBottom, H + 60);
+        ctx.stroke();
+      }
+      const rows = 9;
+      for (let j = 0; j < rows; j++) {
+        const f = (j + (t % 1)) / rows;
+        const y = horizonY + Math.pow(f, 2.3) * (H - horizonY + 80);
+        if (y > H + 10) continue;
+        ctx.globalAlpha = Math.max(0, 0.16 * (1 - f * 0.6));
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+      const glow = ctx.createLinearGradient(vanishX - 340, 0, vanishX + 340, 0);
+      glow.addColorStop(0, 'rgba(34,229,255,0)');
+      glow.addColorStop(0.5, 'rgba(124,241,255,.4)');
+      glow.addColorStop(1, 'rgba(34,229,255,0)');
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = glow;
+      ctx.fillRect(vanishX - 340, horizonY - 1, 680, 1.5);
+      ctx.restore();
+    }
+
     function drawStatic() {
       ctx.clearRect(0, 0, W, H);
+      drawGridFloor(0.4);
       const maxDist = 170;
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
@@ -460,6 +497,8 @@
     function tick() {
       frame++;
       ctx.clearRect(0, 0, W, H);
+      gridT += 0.0016;
+      drawGridFloor(gridT);
       const maxDist = 170;
       nodes.forEach((n) => {
         n.x += n.vx; n.y += n.vy;
