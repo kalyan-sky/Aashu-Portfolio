@@ -1143,7 +1143,11 @@ body.system-page{
 }
 /* The old cyan magnetic cursor-companion (animations.js, site-wide) is
    replaced on this page by a red cursor + spotlight scoped to it. */
-body.system-page .cursor-ring{ display:none !important; }
+/* The old cyan magnetic cursor-companion already re-colors itself via
+   var(--accent) (so it works fine, now red, on About/Projects/Contact) —
+   but Home has its own dedicated cursor + spotlight with tilt-card
+   physics, so it alone needs the shared one turned off to avoid two. */
+body.cine-home .cursor-ring{ display:none !important; }
 /* .navbar:not(.solid) (style.css ~L392) hardcodes the old cyan hero's fixed
    palette for the transparent-over-hero nav state; this page's hero is
    fixed-dark too but red, so it needs the same override in red instead. */
@@ -1469,5 +1473,9 @@ body.system-page .navbar:not(.solid){
 .cine-final-links a.primary:hover{ background: var(--accent); color:#fff; border-color: var(--accent); }
 
 @media (hover:hover) and (pointer:fine){
-  body.system-page, body.system-page a, body.system-page button{ cursor:none; }
+  /* Home only: it has a precise red dot alongside the ring. About/Projects/
+     Contact only get the (now red) ring from animations.js — no dot — so
+     hiding the native cursor there would leave clicks without precise
+     visual feedback. */
+  body.cine-home, body.cine-home a, body.cine-home button{ cursor:none; }
 }
