@@ -1398,6 +1398,12 @@ body.system-page .navbar:not(.solid){
   padding: clamp(24px,2.6vw,34px);
   display:flex; flex-direction:column; justify-content:space-between;
   will-change: transform;
+  /* The arc layout deliberately stacks cards partway behind one another —
+     .sys-card's shared glass background (~1-4.5% white) is too faint for
+     that here, letting the card behind bleed through into the one in
+     front, so this needs its own near-opaque fill to read cleanly. */
+  background: linear-gradient(165deg, rgba(14,17,28,.97), rgba(10,13,22,.94));
+  box-shadow: 0 30px 70px -28px rgba(0,0,0,.85);
 }
 .cine-carousel-card .top-row{ display:flex; justify-content:space-between; align-items:center; }
 .cine-carousel-card .tag{ font-family:var(--font-mono); font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color: var(--accent-bright); background:rgba(229,9,20,.1); border:1px solid rgba(229,9,20,.25); padding:.3em .7em; border-radius:2px; }
