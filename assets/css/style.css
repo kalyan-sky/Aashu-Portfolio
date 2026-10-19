@@ -3,7 +3,7 @@
    Dual-theme (light/dark) sci-fi/HUD system — cyan + violet accents
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Bebas+Neue&display=swap');
 
 /* Native cross-document view transitions: a soft cross-fade between pages in
    browsers that support it (Chrome/Edge); a plain, instant navigation
@@ -1118,4 +1118,364 @@ footer{ border-top: 1px solid var(--line); padding: 48px 0 32px; }
 /* ================= REDUCED MOTION ================= */
 @media (prefers-reduced-motion: reduce){
   *{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior:auto !important; }
+}
+
+/* ==========================================================================
+   CINEMATIC SYSTEM — the Home page, rebuilt per a Netflix-style streaming-UI
+   reference the user supplied (github.com/Sushmitadasari/Netflix_portfolio):
+   near-black background, a single red accent, oversized condensed display
+   type, a tilting "poster" hero card, episode-numbered project cards, and a
+   pinned 3D arc carousel for skills. Every word of content is still read
+   straight from data/resumeData.js — only the presentation is new.
+   Always dark; this page sets data-theme="dark" itself, and overrides the
+   accent + display font on top of that, so the existing var(--accent) /
+   var(--font-display) usages across navbar, buttons, links, etc. all pick
+   up red + Bebas Neue for free without needing their own overrides.
+   ========================================================================== */
+
+body.system-page{
+  --accent: #e50914;
+  --accent-bright: #ff3b47;
+  --accent-2: #b00710;
+  --accent-soft: rgba(229,9,20,.12);
+  --accent-2-soft: rgba(176,7,16,.1);
+  --font-display: 'Bebas Neue', Impact, sans-serif;
+}
+/* The old cyan magnetic cursor-companion (animations.js, site-wide) is
+   replaced on this page by a red cursor + spotlight scoped to it. */
+/* The old cyan magnetic cursor-companion already re-colors itself via
+   var(--accent) (so it works fine, now red, on About/Projects/Contact) —
+   but Home has its own dedicated cursor + spotlight with tilt-card
+   physics, so it alone needs the shared one turned off to avoid two. */
+body.cine-home .cursor-ring{ display:none !important; }
+/* .navbar:not(.solid) (style.css ~L392) hardcodes the old cyan hero's fixed
+   palette for the transparent-over-hero nav state; this page's hero is
+   fixed-dark too but red, so it needs the same override in red instead. */
+body.system-page .navbar:not(.solid){
+  --accent: #e50914;
+  --accent-bright: #ff3b47;
+  --accent-soft: rgba(229,9,20,.16);
+}
+
+.system-shell{ background: var(--bg); }
+.sys-raised{ background: var(--bg-raised); position:relative; }
+.sys-raised::before{
+  content:''; position:absolute; inset:0 0 auto 0; height:1px;
+  background: linear-gradient(90deg, transparent, var(--line-strong) 50%, transparent);
+}
+.sys-section{ position:relative; overflow:hidden; }
+.sys-section::before{
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(229,9,20,.07), transparent 70%);
+}
+.sys-section > .container{ position:relative; z-index:1; }
+.sys-head p{ color: var(--ink-dim); }
+
+.sys-card{
+  position:relative;
+  background: linear-gradient(165deg, rgba(255,255,255,.045), rgba(255,255,255,.012));
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color .45s var(--ease-out), transform .45s var(--ease-out), box-shadow .45s var(--ease-out);
+}
+.sys-card:hover{
+  border-color: rgba(229,9,20,.55);
+  transform: translateY(-4px);
+  box-shadow: 0 24px 60px -24px rgba(0,0,0,.7), 0 0 44px -16px rgba(229,9,20,.3);
+}
+@media (prefers-reduced-motion: reduce){ .sys-card:hover{ transform:none; } }
+
+/* ---------------- shared cinematic primitives ---------------- */
+.cine-badge{
+  display:inline-flex; align-items:center; gap:.65em;
+  padding:.55em 1.1em;
+  background: rgba(0,0,0,.65);
+  border: 1px solid rgba(229,9,20,.4);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  font-family: var(--font-mono); font-size:.68rem; letter-spacing:.16em; text-transform:uppercase;
+  color: var(--ink); border-radius:3px;
+}
+.cine-badge .ping{ width:7px; height:7px; border-radius:50%; background: var(--accent); animation: cinePing 1.7s cubic-bezier(0,0,.2,1) infinite; }
+@keyframes cinePing{
+  0%{ box-shadow:0 0 0 0 rgba(229,9,20,.7); }
+  70%{ box-shadow:0 0 0 9px rgba(229,9,20,0); }
+  100%{ box-shadow:0 0 0 0 rgba(229,9,20,0); }
+}
+@media (prefers-reduced-motion: reduce){ .cine-badge .ping{ animation:none; } }
+.cine-badge .accent{ color: var(--accent-bright); font-weight:700; }
+.cine-badge .dim{ color: var(--ink-faint); }
+.cine-badge .sep{ color: rgba(255,255,255,.25); }
+
+.cine-h1{
+  font-family: var(--font-display); font-weight:400; text-transform:uppercase;
+  letter-spacing:.01em; line-height:0.92; color: var(--ink);
+}
+.cine-h1 .grad{
+  background: linear-gradient(100deg, var(--accent-bright), var(--accent) 55%, var(--accent-2));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter: drop-shadow(0 0 28px rgba(229,9,20,.35));
+}
+.cine-eyebrow-row{ display:flex; align-items:center; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; }
+.cine-watermark{
+  position:absolute; inset:0; z-index:0; pointer-events:none;
+  display:flex; align-items:flex-start; justify-content:center;
+  overflow:hidden; padding-top: clamp(20px,4vw,50px);
+}
+.cine-watermark span{
+  font-family: var(--font-display); font-weight:400; text-transform:uppercase;
+  font-size: clamp(5rem, 16vw, 13rem); line-height:.85; letter-spacing:.01em;
+  color: transparent; -webkit-text-stroke: 1.5px rgba(255,255,255,.05);
+  white-space: nowrap;
+}
+
+/* ---------------- CURSOR + SPOTLIGHT (desktop only) ---------------- */
+.cine-cursor-dot{
+  position:fixed; top:0; left:0; z-index:9999; pointer-events:none;
+  width:10px; height:10px; border-radius:50%;
+  background: var(--accent); box-shadow:0 0 14px var(--accent);
+  opacity:0; transform:translate(-50%,-50%);
+}
+.cine-cursor-ring{
+  position:fixed; top:0; left:0; z-index:9999; pointer-events:none;
+  width:40px; height:40px; border:1px solid rgba(229,9,20,.55); border-radius:50%;
+  opacity:0; transform:translate(-50%,-50%);
+}
+.cine-spotlight{
+  position:fixed; top:0; left:0; z-index:1; pointer-events:none;
+  width:640px; height:640px; border-radius:50%; margin:-320px 0 0 -320px;
+  background: radial-gradient(circle, rgba(229,9,20,.22) 0%, rgba(229,9,20,.06) 45%, transparent 72%);
+  filter: blur(10px); opacity:0; transition: opacity .35s ease;
+}
+@media (hover:none), (pointer:coarse){
+  .cine-cursor-dot, .cine-cursor-ring, .cine-spotlight{ display:none; }
+}
+
+/* ---------------- HERO ---------------- */
+.cine-hero{
+  position:relative; min-height:100svh; overflow:hidden;
+  background: linear-gradient(180deg, #050505 0%, #0a0507 45%, #050505 100%);
+  display:flex; flex-direction:column;
+}
+.cine-hero-marquee{
+  position:absolute; inset:0; z-index:0; display:flex; align-items:center; justify-content:center;
+  overflow:hidden; opacity:.08; pointer-events:none;
+}
+.cine-hero-marquee-track{
+  display:flex; width:max-content; white-space:nowrap;
+  animation: cineMarquee 38s linear infinite;
+}
+@keyframes cineMarquee{ 0%{ transform:translateX(0); } 100%{ transform:translateX(-50%); } }
+@media (prefers-reduced-motion: reduce){ .cine-hero-marquee-track{ animation:none; } }
+.cine-hero-marquee-track span{
+  font-family: var(--font-display); font-weight:400; text-transform:uppercase;
+  font-size: 13vw; color: var(--accent); margin: 0 2rem; letter-spacing:-.02em;
+}
+.cine-hero-inner{
+  position:relative; z-index:2; flex:1; display:flex; flex-direction:column; justify-content:space-between;
+  padding-top: calc(var(--nav-h) + clamp(16px,3vw,32px)); padding-bottom: clamp(28px,4vw,48px);
+}
+.cine-hero-top{ display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+.cine-hero-top .specs{ display:flex; gap:.6rem; font-family:var(--font-mono); font-size:.66rem; letter-spacing:.1em; color:rgba(255,255,255,.5); text-transform:uppercase; }
+.cine-hero-top .specs span{ padding:.3em .6em; border:1px solid rgba(255,255,255,.18); border-radius:3px; background:rgba(0,0,0,.4); }
+
+.cine-hero-stage{ display:grid; grid-template-columns: 1.1fr .85fr .7fr; align-items:center; gap: clamp(24px,3vw,40px); margin: auto 0; }
+.cine-hero-copy{ display:flex; flex-direction:column; align-items:flex-start; gap:1.1rem; text-align:left; }
+.cine-hero-copy .pill{
+  display:inline-flex; align-items:center; gap:.6em;
+  font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.75);
+}
+.cine-hero-copy .pill .tag{
+  padding:.25em .7em; background:var(--accent); color:#fff; font-weight:700; border-radius:2px;
+  box-shadow: 0 0 20px rgba(229,9,20,.7);
+}
+.cine-hero-name{ font-size: clamp(3rem, 7.4vw, 6.2rem); max-width: 620px; }
+.cine-hero-stats{ display:flex; align-items:center; gap:.7rem; flex-wrap:wrap; font-family:var(--font-mono); font-size:.72rem; font-weight:700; color: var(--accent-bright); }
+.cine-hero-stats .chip{ padding:.3em .7em; background:rgba(229,9,20,.1); border:1px solid rgba(229,9,20,.3); border-radius:2px; }
+.cine-hero-stats .sep{ color:rgba(255,255,255,.25); }
+.cine-hero-stats .plain{ color:rgba(255,255,255,.65); font-weight:400; }
+.cine-hero-desc{ font-size:.95rem; color:rgba(255,255,255,.75); font-weight:300; max-width:420px; line-height:1.6; }
+.cine-hero-actions{ display:flex; align-items:center; gap:1rem; padding-top:.4rem; flex-wrap:wrap; }
+.cine-btn-play, .cine-btn-ghost{
+  display:inline-flex; align-items:center; gap:.6em;
+  padding: 1em 1.8em; font-family:var(--font-mono); font-size:.72rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+  border-radius:3px; transition: all .3s ease;
+}
+.cine-btn-play{ background:#fff; color:#050505; box-shadow: 0 10px 35px rgba(255,255,255,.2); }
+.cine-btn-play:hover{ background: var(--accent); color:#fff; transform: translateY(-2px); }
+.cine-btn-ghost{ background: rgba(20,20,20,.8); color:#fff; border:1px solid rgba(255,255,255,.2); backdrop-filter: blur(10px); }
+.cine-btn-ghost:hover{ background: rgba(40,40,40,.9); transform: translateY(-2px); }
+
+.cine-poster-wrap{ display:flex; justify-content:center; perspective: 1400px; }
+.cine-poster{ position:relative; width: clamp(240px, 22vw, 300px); transform-style:preserve-3d; will-change:transform; }
+.cine-poster-glow{
+  position:absolute; inset:-16px; border-radius:22px; filter: blur(55px); opacity:.85;
+  background: linear-gradient(135deg, rgba(229,9,20,.75), rgba(176,7,16,.35), transparent 70%);
+}
+.cine-poster-card{
+  position:relative; padding:13px; border-radius:16px; overflow:hidden;
+  background: rgba(20,20,20,.92); border:1px solid rgba(229,9,20,.45);
+  box-shadow: 0 40px 85px rgba(0,0,0,.95);
+}
+.cine-poster-tag{
+  position:absolute; top:20px; left:20px; z-index:3;
+  padding:.35em .85em; background: var(--accent); color:#fff; border-radius:3px;
+  font-family: var(--font-mono); font-size:.6rem; font-weight:700; letter-spacing:.13em; box-shadow: 0 6px 20px rgba(229,9,20,.5);
+}
+.cine-poster-face{
+  position:relative; width:100%; height: clamp(300px,30vw,390px); border-radius:11px; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  background: radial-gradient(circle at 30% 20%, rgba(229,9,20,.3), transparent 60%), linear-gradient(160deg,#161616,#070707);
+}
+.cine-poster-monogram{
+  font-family: var(--font-display); font-weight:400; font-size: clamp(5rem,9vw,7.5rem);
+  color: rgba(255,255,255,.95); text-shadow: 0 0 70px rgba(229,9,20,.65);
+}
+.cine-poster-glare{
+  position:absolute; inset:-60%; width:220%; height:220%; pointer-events:none; z-index:4;
+  background: linear-gradient(115deg, transparent 42%, rgba(255,255,255,.14) 50%, transparent 58%);
+}
+.cine-poster-caption{ margin-top: 14px; display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:.62rem; letter-spacing:.08em; color:rgba(255,255,255,.55); text-transform:uppercase; }
+
+.cine-hero-side{ display:flex; justify-content:flex-end; }
+.cine-hero-side .card{ max-width:230px; padding: 22px; text-align:left; }
+.cine-hero-side h3{ font-family:var(--font-mono); font-size:.66rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color: var(--accent-bright); margin-bottom:.7rem; }
+.cine-hero-side p{ font-size:.78rem; color:rgba(255,255,255,.7); font-weight:300; line-height:1.55; }
+
+.cine-hero-foot{ display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.4); }
+
+@media (max-width: 1020px){
+  .cine-hero-stage{ grid-template-columns:1fr; text-align:center; }
+  .cine-hero-copy{ align-items:center; text-align:center; }
+  .cine-hero-side{ justify-content:center; }
+  .cine-hero-side .card{ text-align:center; }
+}
+
+/* ---------------- ABOUT — BENTO GRID ---------------- */
+.cine-bento{ display:grid; grid-template-columns: repeat(12,1fr); gap:20px; }
+.cine-bento-card{ grid-column: span 12; padding: clamp(26px,3.2vw,42px); position:relative; overflow:hidden; }
+.cine-bento-card.span-7{ grid-column: span 7; }
+.cine-bento-card.span-5{ grid-column: span 5; }
+@media (max-width:860px){ .cine-bento-card{ grid-column: span 12 !important; } }
+.cine-bento-card .idx{ position:absolute; top:14px; right:20px; font-family:var(--font-mono); font-weight:700; font-size:3.4rem; color: rgba(255,255,255,.04); line-height:1; }
+.cine-bento-card h3{ font-family:var(--font-mono); font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color: var(--accent-bright); margin-bottom:1rem; }
+.cine-bento-card p{ color: rgba(255,255,255,.78); line-height:1.65; }
+.cine-bento-card p.lead{ font-size:1.1rem; color:#fff; }
+.cine-bento-card p.sub{ font-size:.88rem; color:rgba(255,255,255,.6); font-weight:300; margin-top:.8rem; }
+.cine-bento-chips{ display:flex; flex-wrap:wrap; gap:.55rem; margin-top:1.4rem; }
+.cine-bento-chips span{ font-family:var(--font-mono); font-size:.7rem; padding:.4em .85em; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:3px; color:rgba(255,255,255,.8); }
+.cine-bento-list{ display:flex; flex-direction:column; gap:.8rem; margin-top:.3rem; }
+.cine-bento-list li{ display:flex; gap:.6rem; font-size:.84rem; color:rgba(255,255,255,.8); align-items:flex-start; }
+.cine-bento-list li::before{ content:'\203A'; color: var(--accent-bright); font-weight:700; }
+.cine-bento-foot{ margin-top:1.4rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,.08); font-family:var(--font-mono); font-size:.68rem; color:rgba(255,255,255,.35); }
+
+/* ---------------- EXPERTISE — STICKY STACK ---------------- */
+.cine-expertise-stack{ position:relative; display:flex; flex-direction:column; padding-bottom: 8vh; }
+.cine-expertise-card{
+  position:sticky; margin-bottom:16px; padding: clamp(26px,3.4vw,44px);
+  display:grid; grid-template-columns: 2.2rem 1fr; gap: clamp(18px,2.4vw,32px); align-items:center;
+}
+.cine-expertise-card .num{ font-family:var(--font-mono); font-weight:700; font-size:1.6rem; color: rgba(255,255,255,.18); }
+.cine-expertise-card .body{ display:grid; grid-template-columns: 1fr 1.6fr; gap: clamp(16px,2vw,28px); align-items:center; }
+.cine-expertise-card h3{ font-family:var(--font-display); text-transform:uppercase; font-size: clamp(1.6rem,2.6vw,2.2rem); line-height:1; }
+.cine-expertise-card .tag{ display:inline-block; margin-bottom:.6rem; font-family:var(--font-mono); font-size:.62rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color: var(--accent-bright); background:rgba(229,9,20,.1); border:1px solid rgba(229,9,20,.25); padding:.3em .7em; border-radius:2px; }
+.cine-expertise-card p{ font-size:.85rem; color:rgba(255,255,255,.68); font-weight:300; line-height:1.6; }
+@media (max-width:760px){
+  .cine-expertise-card{ grid-template-columns:1fr; }
+  .cine-expertise-card .body{ grid-template-columns:1fr; }
+}
+
+/* ---------------- SKILLS — 3D ARC CAROUSEL ---------------- */
+.cine-carousel-section{ position:relative; }
+.cine-carousel-stage{
+  position:relative; width:100%; height: min(72vh, 560px);
+  perspective: 1800px;
+}
+.cine-carousel-card{
+  position:absolute; top:50%; left:50%; width: min(86vw, 400px); min-height: 360px;
+  margin: -200px 0 0 -200px;
+  padding: clamp(24px,2.6vw,34px);
+  display:flex; flex-direction:column; justify-content:space-between;
+  will-change: transform;
+}
+.cine-carousel-card .top-row{ display:flex; justify-content:space-between; align-items:center; }
+.cine-carousel-card .tag{ font-family:var(--font-mono); font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color: var(--accent-bright); background:rgba(229,9,20,.1); border:1px solid rgba(229,9,20,.25); padding:.3em .7em; border-radius:2px; }
+.cine-carousel-card .idx{ font-family:var(--font-mono); font-size:.68rem; color:rgba(255,255,255,.35); }
+.cine-carousel-card h3{ font-family:var(--font-display); text-transform:uppercase; font-size:1.9rem; margin-top:1rem; }
+.cine-carousel-card p{ font-size:.82rem; color:rgba(255,255,255,.65); font-weight:300; margin-top:.5rem; line-height:1.55; }
+.cine-carousel-card .tags{ display:flex; flex-wrap:wrap; gap:.45rem; padding-top:.8rem; margin-top:.8rem; border-top:1px solid rgba(255,255,255,.08); }
+.cine-carousel-card .tags span{ font-family:var(--font-mono); font-size:.66rem; color:rgba(255,255,255,.75); background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); padding:.3em .65em; border-radius:2px; }
+.cine-carousel-progress{ display:flex; justify-content:center; gap:.5rem; margin-top: 2rem; }
+.cine-carousel-progress span{ width:26px; height:3px; background:rgba(255,255,255,.15); border-radius:2px; transition: background .3s ease, width .3s ease; }
+.cine-carousel-progress span.active{ background: var(--accent); width:40px; }
+
+@media (max-width:760px){
+  .cine-carousel-stage{ display:none; }
+  .cine-carousel-mobile{
+    display:flex; gap:16px; overflow-x:auto; padding: 4px 4px 20px;
+    scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+  }
+  .cine-carousel-mobile::-webkit-scrollbar{ display:none; }
+  .cine-carousel-mobile .cine-carousel-card{
+    position:static; margin:0; flex:0 0 82vw; scroll-snap-align:center; min-height:320px;
+  }
+}
+@media (min-width:761px){ .cine-carousel-mobile{ display:none; } }
+
+/* ---------------- PROJECTS — EPISODE CARDS ---------------- */
+.cine-episodes{ display:grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); gap:20px; align-items:start; }
+.cine-episode{ overflow:hidden; }
+.cine-episode-trigger{
+  width:100%; text-align:left; background:none; border:none; cursor:pointer; color:inherit; font:inherit;
+  padding: clamp(22px,2.8vw,30px); display:flex; flex-direction:column; gap:.6rem;
+}
+.cine-episode-top{ display:flex; justify-content:space-between; align-items:center; }
+.cine-episode-tag{ font-family:var(--font-mono); font-size:.62rem; font-weight:700; letter-spacing:.13em; color: var(--accent-bright); background:rgba(229,9,20,.1); border:1px solid rgba(229,9,20,.3); padding:.3em .7em; border-radius:2px; }
+.cine-episode-top .right{ display:flex; align-items:center; gap:.5rem; }
+.cine-episode-status{ font-family:var(--font-mono); font-size:.64rem; font-weight:700; color: var(--accent-bright); }
+.cine-episode-hd{ font-family:var(--font-mono); font-size:.6rem; border:1px solid rgba(255,255,255,.3); padding:.1em .4em; color:rgba(255,255,255,.65); border-radius:2px; }
+.cine-episode-cat{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-top:.3rem; }
+.cine-episode h3{ font-family:var(--font-display); text-transform:uppercase; font-size:1.7rem; line-height:1.05; margin-top:.2rem; }
+.cine-episode-client{ font-family:var(--font-mono); font-size:.7rem; color:rgba(255,255,255,.45); }
+.cine-episode-desc{ font-size:.8rem; color:rgba(255,255,255,.65); font-weight:300; line-height:1.55; }
+.cine-episode-tags{ display:flex; flex-wrap:wrap; gap:.45rem; padding-top:.7rem; border-top:1px solid rgba(255,255,255,.08); }
+.cine-episode-tags span{ font-family:var(--font-mono); font-size:.64rem; color:rgba(255,255,255,.72); background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); padding:.3em .6em; border-radius:2px; }
+.cine-episode-cue{ font-family:var(--font-mono); font-size:.66rem; color: var(--accent-bright); margin-top:.3rem; }
+.cine-episode-panel{ max-height:0; overflow:hidden; transition: max-height .5s var(--ease-out); border-top:1px solid transparent; }
+.cine-episode.open .cine-episode-panel{ max-height:1200px; border-top-color: rgba(255,255,255,.08); }
+.cine-episode-panel-inner{ padding: 0 clamp(22px,2.8vw,30px) clamp(24px,2.8vw,30px); }
+.cine-episode-field{ margin-bottom:1rem; }
+.cine-episode-field .k{ display:block; font-family:var(--font-mono); font-size:.62rem; letter-spacing:.13em; text-transform:uppercase; color: var(--accent-bright); margin-bottom:.4rem; }
+.cine-episode-field .v{ color: rgba(255,255,255,.75); font-size:.86rem; line-height:1.6; }
+.cine-episode-impact{ display:inline-flex; align-items:baseline; gap:.5em; }
+.cine-episode-impact .num{ font-family: var(--font-display); font-size:1.8rem; color: var(--accent-bright); }
+
+/* ---------------- FINAL — CREDITS ---------------- */
+.cine-final{
+  position:relative; min-height:100svh; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(180deg, #050505 0%, #0a0507 50%, #050505 100%);
+}
+.cine-final-content{ position:relative; z-index:2; text-align:center; }
+.cine-final-eyebrow{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:1.2rem; }
+.cine-final-name{ font-size: clamp(2.6rem,7vw,5.2rem); }
+.cine-final-title{ margin-top:.8rem; font-family:var(--font-mono); font-size:.85rem; color:rgba(255,255,255,.6); letter-spacing:.06em; text-transform:uppercase; }
+.cine-final-tagline{ margin-top:1.4rem; font-size: clamp(1rem,1.6vw,1.2rem); color: var(--accent-bright); font-style:italic; }
+.cine-final-links{ margin-top:2.6rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+.cine-final-links a{
+  font-family:var(--font-mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase;
+  padding:.8em 1.4em; border:1px solid rgba(255,255,255,.18); border-radius:3px; color:rgba(255,255,255,.85);
+  transition: all .3s ease;
+}
+.cine-final-links a:hover{ border-color: var(--accent); color: var(--accent-bright); background: rgba(229,9,20,.08); }
+.cine-final-links a.primary{ background:#fff; color:#050505; border-color:#fff; }
+.cine-final-links a.primary:hover{ background: var(--accent); color:#fff; border-color: var(--accent); }
+
+@media (hover:hover) and (pointer:fine){
+  /* Home only: it has a precise red dot alongside the ring. About/Projects/
+     Contact only get the (now red) ring from animations.js — no dot — so
+     hiding the native cursor there would leave clicks without precise
+     visual feedback. */
+  body.cine-home, body.cine-home a, body.cine-home button{ cursor:none; }
 }
