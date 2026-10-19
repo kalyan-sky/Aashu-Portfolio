@@ -202,9 +202,14 @@
 
     const gsapReady = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
     if (!reduceMotion && gsapReady) {
+      // Pin starting at 'top top' puts the stage's top edge — and the
+      // active card's title near it — right behind the fixed navbar.
+      // Start the pin once the section has scrolled past the navbar's
+      // own height instead, so cards always render below it.
+      const navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h'), 10) || 88;
       ScrollTrigger.create({
         trigger: stage.closest('.cine-carousel-section'),
-        start: 'top top',
+        start: 'top ' + navH + 'px',
         end: '+=' + (SKILL_GROUPS.length * 70) + '%',
         pin: true,
         pinType: 'transform',
