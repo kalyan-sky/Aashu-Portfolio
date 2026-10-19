@@ -1387,6 +1387,12 @@ body.system-page .navbar:not(.solid){
 }
 
 /* ---------------- SKILLS — 3D ARC CAROUSEL ---------------- */
+/* The heading above and the carousel's cards both scroll at normal speed
+   before the carousel pins, with nothing between them — on short-enough
+   viewports that let the heading's bottom and the first card's top reach
+   the screen at the same time, they'd overlap. This margin keeps a clear
+   gap between them throughout that pre-pin scroll. */
+#skills .section-head{ margin-bottom: clamp(60px, 10vw, 140px); }
 .cine-carousel-section{ position:relative; }
 .cine-carousel-stage{
   position:relative; width:100%; height: min(72vh, 560px);
