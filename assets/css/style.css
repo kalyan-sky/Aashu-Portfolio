@@ -1484,6 +1484,67 @@ body.system-page .navbar:not(.solid){
 .cine-final-links a.primary{ background:#fff; color:#050505; border-color:#fff; }
 .cine-final-links a.primary:hover{ background: var(--accent); color:#fff; border-color: var(--accent); }
 
+/* ---------------- GATE — profile-picker landing page ---------------- */
+.gate-page{ min-height:100vh; display:flex; }
+.gate-shell{
+  position:relative; z-index:1; margin:auto; width:100%; max-width:860px;
+  padding: clamp(32px,6vw,64px) clamp(20px,5vw,40px);
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  gap: clamp(28px,5vw,48px);
+}
+.gate-logo{
+  font-family: var(--font-display); font-weight:700; font-size:1.15rem; letter-spacing:.01em; color: var(--ink);
+}
+.gate-logo em{ font-style:normal; color: var(--accent); }
+.gate-head{ display:flex; flex-direction:column; align-items:center; gap:1.1rem; }
+.gate-title{ font-size: clamp(2.3rem,6vw,4rem); }
+.gate-sub{ color: var(--ink-dim); max-width:44ch; font-size:.95rem; }
+
+.gate-profiles{
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap: clamp(16px,3vw,30px);
+  width:100%; max-width:720px;
+}
+.gate-profile{
+  display:flex; flex-direction:column; align-items:center; gap:.85rem;
+  padding: 1.3rem .8rem; border-radius:12px;
+  color: var(--ink); text-decoration:none;
+}
+.gate-avatar{
+  width:92px; height:92px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(165deg, rgba(255,255,255,.06), rgba(255,255,255,.015));
+  border:2px solid transparent;
+  color: var(--ink-dim);
+  transition: border-color .3s var(--ease-out), color .3s var(--ease-out), box-shadow .3s var(--ease-out), transform .3s var(--ease-out);
+}
+.gate-avatar svg{ width:32px; height:32px; }
+.gate-name{
+  font-family: var(--font-display); text-transform:uppercase; letter-spacing:.03em; font-size:1.02rem;
+  color: var(--ink-dim); transition: color .3s ease;
+}
+.gate-caption{ font-size:.72rem; color: var(--ink-faint); max-width:18ch; line-height:1.45; }
+
+.gate-profile:hover .gate-avatar,
+.gate-profile:focus-visible .gate-avatar{
+  border-color: var(--accent);
+  color: var(--accent-bright);
+  box-shadow: 0 0 0 1px var(--accent-soft), 0 20px 40px -20px rgba(229,9,20,.45);
+  transform: translateY(-4px) scale(1.04);
+}
+.gate-profile:hover .gate-name,
+.gate-profile:focus-visible .gate-name{ color: var(--ink); }
+.gate-profile:focus-visible{ outline:none; }
+
+.gate-profile--ghost .gate-avatar{ border-style:dashed; border-color: var(--line-strong); opacity:.65; }
+.gate-profile--ghost:hover .gate-avatar,
+.gate-profile--ghost:focus-visible .gate-avatar{ opacity:1; border-style:solid; }
+
+.gate-foot{ font-family: var(--font-mono); font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color: var(--ink-faint); }
+
+@media (prefers-reduced-motion: reduce){
+  .gate-profile, .gate-avatar{ transition:none; }
+}
+
 @media (hover:hover) and (pointer:fine){
   /* Home only: it has a precise red dot alongside the ring. About/Projects/
      Contact only get the (now red) ring from animations.js — no dot — so
